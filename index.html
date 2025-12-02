@@ -247,12 +247,16 @@
         }
         
         // --- PWA Service Worker Registration ---
-        // This registers the Service Worker for offline functionality and PWA installation.
-        // NOTE: For full PWA functionality, you MUST create 'manifest.json' and 'sw.js'
-        // in the root of your GitHub repository.
+        // FIX: Dynamically calculate the path for GitHub Pages subdomains.
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                // This converts paths like /repo-name/index.html to /repo-name/sw.js
+                const path = window.location.pathname;
+                const serviceWorkerPath = path.endsWith('/index.html') 
+                    ? path.replace('index.html', 'sw.js') 
+                    : '/sw.js';
+
+                navigator.serviceWorker.register(serviceWorkerPath)
                     .then(registration => {
                         console.log('Service Worker registered successfully with scope: ', registration.scope);
                     })
