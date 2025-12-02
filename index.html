@@ -3,298 +3,477 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTS Temporal Continuity Test Tool</title>
+    <title>Human Time System (HTS) Converters</title>
     
-    <!-- --- PWA Meta Tags (Required for App Installation) --- -->
-    <meta name="description" content="A continuous time standard converter for the Human Time System." />
-    <!-- FIX: Changed from /manifest.json to relative path manifest.json -->
-    <link rel="manifest" href="manifest.json"> 
-    <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="icon-192.png"> 
-    
-    <!-- Load Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for better aesthetics and readability */
+        /* Modern, Clean Styling */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1f2937; /* Dark background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
+            padding: 20px;
+            background-color: #f0f2f5;
         }
-        .container-card {
-            background-color: #111827; /* Darker card */
-            color: #f3f4f6;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            border: 1px solid #374151;
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .input-style, .output-style {
-            background-color: #1f2937;
-            color: #d1d5db;
+        /* Logo Styling */
+        .logo-container {
+            margin-bottom: 25px;
+        }
+        .logo-container img {
+            max-width: 180px; 
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1a1a2e;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #1a1a2e;
+            font-size: 1.3em;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            margin-top: 30px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            transform: scale(0.99);
+        }
+        /* Removed .copy-btn styling */
+        
+        /* Styling for Result Boxes */
+        #result-convert, #result-difference, #result-project, #result-hts-convert {
+            margin-top: 35px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #e6f7ff;
+            font-size: 1.1em;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+        .warning-text {
+            color: #ff4500; /* Deep Orange for warning */
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        /* Status Box Styling */
+        .status-box {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            font-size: 0.9em;
+            /* Ensure it has margin at the bottom before the footer */
+            margin-bottom: 30px; 
+        }
+        .status-box h2 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        .status-box p {
+            font-weight: normal;
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        /* Footer/New Logo Styling */
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .storcke-logo img {
+            max-width: 150px;
+            height: auto;
+            opacity: 0.7;
+        }
+        .footer-text {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 10px;
         }
     </style>
 </head>
-<body class="selection:bg-indigo-700">
+<body>
 
-    <div id="app" class="container-card max-w-lg w-full p-8 md:p-10 rounded-xl">
-        <h1 class="text-4xl font-extrabold text-indigo-400 mb-2">HTS Continuous Time Demo</h1>
-        
-        <!-- --- START: Update Status Line (Requested) --- -->
-        <p class="text-xs text-yellow-400 font-semibold mb-2 p-1 border border-yellow-700 bg-yellow-900/30 rounded-md inline-block">
-            Update Status: Manifest Path and Scope Fixes Applied
-        </p>
-        <!-- --- END: Update Status Line --- -->
-
-        <p class="text-sm text-gray-400 mb-6">
-            Converts conventional date/time to the continuous Human Time System (HTS) value, and vice-versa.
-        </p>
-
-        <!-- Live Clock Section -->
-        <div class="mb-8 p-4 bg-indigo-900/30 rounded-lg border border-indigo-700/50">
-            <p class="text-xs font-semibold uppercase text-indigo-300 mb-1">Current HTS Value</p>
-            <p id="liveHtsOutput" class="text-3xl font-mono text-indigo-300 break-words">0.00000000</p>
-        </div>
-
-        <!-- Conversion Block (Gregorian to HTS) -->
-        <div class="space-y-4 mb-10 pb-6 border-b border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-300">1. Gregorian to HTS</h2>
-            <label for="dateTimeInput" class="block text-sm font-medium text-gray-400">
-                Enter Date & Time (e.g., 2025-12-01T10:30)
-            </label>
-            <input type="datetime-local" id="dateTimeInput" class="input-style w-full p-3 border border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" value="2025-12-01T10:30">
-
-            <button id="convertButton" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-500 transition duration-200 shadow-md shadow-indigo-800/50">
-                Convert to HTS Value
-            </button>
-            
-            <div id="htsResultContainer" class="output-style p-4 rounded-lg border border-indigo-700 break-words flex justify-between items-center mt-3">
-                <p id="htsOutput" class="text-xl font-mono text-indigo-300">0.00000000</p>
-                <button id="copyButton" class="text-indigo-500 hover:text-indigo-300 transition duration-150 p-2 rounded-full hidden">
-                    <!-- Copy Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1M8 5h8m-8 0v2m8-2v2m-8 4h8m-8 4h8" />
-                    </svg>
-                </button>
-            </div>
-            <p id="errorBox" class="text-red-400 mt-2 hidden text-sm"></p>
-        </div>
-        
-        <!-- Reverse Conversion Block (HTS to Gregorian) -->
-        <div class="space-y-4">
-            <h2 class="text-xl font-semibold text-gray-300">2. HTS to Gregorian</h2>
-            <label for="htsInput" class="block text-sm font-medium text-gray-400">
-                Enter HTS Value (e.g., 20387.4375)
-            </label>
-            <input type="number" step="any" id="htsInput" class="input-style w-full p-3 border border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="Enter HTS Value">
-
-            <button id="reverseConvertButton" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-500 transition duration-200 shadow-md shadow-green-800/50">
-                Convert to Gregorian Date
-            </button>
-            
-            <div id="gregorianResultContainer" class="output-style p-4 rounded-lg border border-green-700 break-words flex justify-between items-center mt-3">
-                <p id="gregorianOutput" class="text-xl font-mono text-green-300">---</p>
-            </div>
-            <p id="reverseErrorBox" class="text-red-400 mt-2 hidden text-sm"></p>
-        </div>
-
-
-        <!-- Epoch Reference -->
-        <div class="mt-8 text-xs text-gray-500 pt-4 border-t border-gray-800">
-            <p>* HTS is defined as the continuous floating-point number of standard terrestrial days elapsed since the Unix Epoch: **Jan 1, 1970, 00:00:00 UTC**.</p>
-        </div>
+<div class="container">
+    <div class="logo-container">
+        <!-- Reverted to original file name as requested -->
+        <img src="1000035855.png" alt="Human Time System Logo"> 
     </div>
 
-    <script>
-        // --- Core HTS Constants ---
-        // Set the HTS reference epoch to Jan 1, 1970, 00:00:00 UTC (Unix Epoch)
-        const HTS_EPOCH_MS = 0; 
-        // 1 HTS Unit is equivalent to the milliseconds in one standard terrestrial day.
-        const MS_PER_DAY = 86400000; 
+    <h1>Gregorian Year to HTS Converter</h1>
 
-        // --- Functions: Gregorian to HTS ---
+    <label for="gregorianYear">Enter Gregorian Year (AD):</label>
+    <input type="number" id="gregorianYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') convertToHTS()">
 
-        /**
-         * Converts a standard Date object into a continuous Human Time System (HTS) value.
-         */
-        function convertToHTS(date) {
-            const timeDifferenceMs = date.getTime() - HTS_EPOCH_MS;
-            // Calculate the continuous number of days (or HTS units)
-            const htsValue = timeDifferenceMs / MS_PER_DAY;
-            
-            // Format to 8 decimal places for high precision demonstration
-            return htsValue.toFixed(8); 
-        }
+    <button onclick="convertToHTS()">Calculate HTS Year</button>
 
-        function handleConversion() {
-            const inputElement = document.getElementById('dateTimeInput');
-            const outputElement = document.getElementById('htsOutput');
-            const errorBox = document.getElementById('errorBox');
-            const copyButton = document.getElementById('copyButton');
-            
-            // Clear previous errors
-            errorBox.classList.add('hidden');
-            errorBox.textContent = '';
-            outputElement.textContent = '0.00000000';
-            copyButton.classList.add('hidden'); 
+    <div id="result-convert">
+        The current year will be displayed here on load.
+    </div>
+</div>
 
-            const dateTimeString = inputElement.value;
-            
-            if (!dateTimeString) {
-                errorBox.textContent = 'Please enter a valid date and time.';
-                errorBox.classList.remove('hidden');
-                return;
-            }
+<!-- HTS to Gregorian Converter -->
+<div class="container">
+    <h2>HTS Year to Gregorian Converter</h2>
+    
+    <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>
+    <input type="text" id="htsYearInput" placeholder="e.g., 1B40000" onkeyup="if(event.key === 'Enter') convertHTSToGregorian()">
 
-            try {
-                // Treats the input as local time and gets the UTC milliseconds
-                const date = new Date(dateTimeString);
-                
-                if (isNaN(date.getTime())) {
-                    throw new Error("Invalid date input.");
-                }
+    <button onclick="convertHTSToGregorian()">Calculate Gregorian Year</button>
 
-                const htsResult = convertToHTS(date);
-                outputElement.textContent = htsResult;
-                copyButton.classList.remove('hidden'); 
-                
-            } catch (error) {
-                console.error("Conversion error:", error);
-                errorBox.textContent = `Error: Could not parse date. Please check the format.`;
-                errorBox.classList.remove('hidden');
-            }
+    <div id="result-hts-convert">
+        Enter an HTS year to see the Gregorian equivalent.
+    </div>
+</div>
+
+<div class="container">
+    <h2>Calculate Year Difference (Duration)</h2>
+    
+    <label for="startYear">Enter Start Gregorian Year:</label>
+    <input type="number" id="startYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') calculateDifference()">
+    
+    <label for="endYear">Enter End Gregorian Year:</label>
+    <input type="number" id="endYear" placeholder="e.g., 2050" onkeyup="if(event.key === 'Enter') calculateDifference()">
+
+    <button onclick="calculateDifference()">Calculate Duration</button>
+
+    <div id="result-difference">
+        Enter two years to see the duration between them.
+    </div>
+</div>
+
+<div class="container">
+    <h2>Project Future HTS Year</h2>
+    
+    <label for="baseYear">Start Gregorian Year:</label>
+    <input type="number" id="baseYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') projectFutureYear()">
+    
+    <label for="yearsToAdd">Number of Years to Add:</label>
+    <input type="number" id="yearsToAdd" placeholder="e.g., 50" onkeyup="if(event.key === 'Enter') projectFutureYear()">
+
+    <button onclick="projectFutureYear()">Calculate Future HTS Year</button>
+
+    <div id="result-project">
+        Enter the number of years to add to see the future HTS Year.
+    </div>
+</div>
+
+<!-- Last Updated Status Display - MOVED TO BOTTOM -->
+<div class="container status-box">
+    <h2>Application Status</h2>
+    <div id="last-updated">
+        Calculating load time...
+    </div>
+</div>
+
+<footer>
+    <div class="storcke-logo">
+        <!-- Reverted to original file name as requested -->
+        <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">
+    </div>
+    <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
+</footer>
+
+<script>
+    // Global variable to capture the exact time the script started (content load time)
+    const scriptLoadTime = new Date();
+    
+    // --- Removed UTILITY FUNCTION: copyResultToClipboard ---
+
+    // --- HTS Conversion Logic (Shared) ---
+    function getHTSNotation(gregorianYear) {
+        // --- HTS Conversion Constants ---
+        const BASE_GREGORIAN_YEAR = 2023;
+        const HTS_BASE_YEAR = 40000;
+        const EPOCH_LENGTH = 50000;
+        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // Gregorian year equivalent of HTS Year 0 (2023 - 40000 = -37977)
+        const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;
+        const yearsSinceHTS0 = gregorianYear - HTS_YEAR_0_GREGORIAN;
+
+        // Calculate Epoch components
+        const epochIndex = Math.floor(yearsSinceHTS0 / EPOCH_LENGTH);
+        const yearWithinEpoch = yearsSinceHTS0 % EPOCH_LENGTH;
+        
+        // Calculate Supercycle and Epoch Letter
+        const supercycleNumber = Math.floor(epochIndex / ALPHABET.length) + 1;
+        const letterIndex = epochIndex % ALPHABET.length;
+        const epochLetter = ALPHABET[letterIndex];
+
+        // Format outputs
+        const HTS_Year_Formatted = String(yearWithinEpoch).padStart(5, '0');
+        const HTS_Epoch_Year = `${epochLetter}${HTS_Year_Formatted}`;
+        const HTS_Full = `${supercycleNumber}${epochLetter}${HTS_Year_Formatted}`;
+        
+        return { HTS_Epoch_Year, HTS_Full, gregorianYear };
+    }
+    // ------------------------------------
+
+    // --- FUNCTION 1: Gregorian to HTS Conversion ---
+    function convertToHTS() {
+        const yearInput = document.getElementById('gregorianYear').value;
+        const resultDiv = document.getElementById('result-convert');
+        const gregorianYear = parseInt(yearInput);
+
+        if (isNaN(gregorianYear) || gregorianYear < -40000) {
+            resultDiv.innerHTML = "❌ Please enter a valid Gregorian year (e.g., 2025). The system starts 40,000 years before 2023.";
+            return;
         }
         
-        /**
-         * Copies the HTS output text to the clipboard.
-         */
-        function copyToClipboard() {
-            const outputElement = document.getElementById('htsOutput');
-            const textToCopy = outputElement.textContent;
-            const copyButton = document.getElementById('copyButton');
-            
-            const textarea = document.createElement('textarea');
-            textarea.value = textToCopy;
-            textarea.style.position = 'fixed'; 
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
-                    setTimeout(() => {
-                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1M8 5h8m-8 0v2m8-2v2m-8 4h8m-8 4h8" /></svg>`;
-                    }, 2000);
-                }
-            } catch (err) {
-                console.error('Could not copy text: ', err);
-                const errorBox = document.getElementById('errorBox');
-                errorBox.textContent = 'Copy failed. Please copy manually.';
-                errorBox.classList.remove('hidden');
-            }
-            document.body.removeChild(textarea);
+        const htsData = getHTSNotation(gregorianYear);
+
+        // Reverted HTML structure
+        resultDiv.innerHTML = `
+            <h3>✅ Conversion Complete</h3>
+            <p>The Gregorian Year ${htsData.gregorianYear} AD is:</p>
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">
+                ${htsData.HTS_Epoch_Year}
+            </p>
+            <p>Full HTS Notation (Supercycle/Epoch/Year):</p>
+            <p style="font-size: 1.5em; color: #1a1a2e; margin: 5px 0;">
+                **${htsData.HTS_Full}**
+            </p>
+        `;
+    }
+
+    // --- FUNCTION 2: HTS to Gregorian Conversion ---
+    function convertHTSToGregorian() {
+        const htsInput = document.getElementById('htsYearInput').value.trim().toUpperCase();
+        const resultDiv = document.getElementById('result-hts-convert');
+
+        // Constants from HTS logic
+        const BASE_GREGORIAN_YEAR = 2023;
+        const HTS_BASE_YEAR = 40000;
+        const EPOCH_LENGTH = 50000;
+        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;
+
+        // Regex to match the full notation: [Supercycle (optional)] [Epoch Letter] [5-digit Year]
+        const match = htsInput.match(/^(\d*)?([A-Z])(\d{5})$/); 
+
+        if (!match) {
+            resultDiv.innerHTML = "❌ Invalid HTS format. Please use the full notation, e.g., **1B40000** (Supercycle, Epoch Letter, 5-digit Year).";
+            return;
         }
 
-        // --- Functions: HTS to Gregorian ---
+        const supercycleStr = match[1];
+        const epochLetter = match[2];
+        const yearWithinEpochStr = match[3];
 
-        /**
-         * Converts a continuous HTS value back to a standard Gregorian date string (UTC).
-         * @param {number} htsValue - The HTS continuous value.
-         * @returns {string} The formatted UTC Gregorian date string.
-         */
-        function convertFromHTS(htsValue) {
-            const timeDifferenceMs = htsValue * MS_PER_DAY;
-            const targetMs = HTS_EPOCH_MS + timeDifferenceMs;
-            
-            // Create a Date object from the calculated milliseconds
-            const date = new Date(targetMs);
-            
-            // Return a clean, human-readable UTC string
-            return date.toUTCString();
+        // Default to Supercycle 1 if not explicitly entered or entered as blank/empty string
+        const supercycleNumber = supercycleStr === '' ? 1 : parseInt(supercycleStr); 
+        const yearWithinEpoch = parseInt(yearWithinEpochStr);
+
+        if (yearWithinEpoch >= EPOCH_LENGTH) {
+             resultDiv.innerHTML = `❌ Invalid year. Year within epoch must be less than ${EPOCH_LENGTH}.`;
+            return;
+        }
+        if (isNaN(supercycleNumber) || supercycleNumber <= 0) {
+             resultDiv.innerHTML = "❌ Invalid Supercycle. Must be a positive integer.";
+             return;
         }
 
-        function handleReverseConversion() {
-            const inputElement = document.getElementById('htsInput');
-            const outputElement = document.getElementById('gregorianOutput');
-            const errorBox = document.getElementById('reverseErrorBox');
+        const letterIndex = ALPHABET.indexOf(epochLetter);
+        
+        if (letterIndex === -1) {
+            resultDiv.innerHTML = "❌ Invalid Epoch Letter. Must be A-Z.";
+            return;
+        }
 
-            // Clear previous errors
-            errorBox.classList.add('hidden');
-            errorBox.textContent = '';
-            outputElement.textContent = '---';
+        // 1. Calculate the overall epoch index (zero-based)
+        const totalEpochs = (supercycleNumber - 1) * ALPHABET.length + letterIndex;
 
-            const htsString = inputElement.value;
-            const htsValue = parseFloat(htsString);
+        // 2. Calculate the total years since HTS Year 0
+        const yearsSinceHTS0 = (totalEpochs * EPOCH_LENGTH) + yearWithinEpoch;
 
-            if (isNaN(htsValue) || htsString.trim() === '') {
-                errorBox.textContent = 'Please enter a valid numeric HTS Value.';
-                errorBox.classList.remove('hidden');
-                return;
-            }
+        // 3. Calculate the Gregorian Year
+        const gregorianYear = yearsSinceHTS0 + HTS_YEAR_0_GREGORIAN;
 
-            try {
-                const gregorianResult = convertFromHTS(htsValue);
-                outputElement.textContent = gregorianResult;
-            } catch (error) {
-                console.error("Reverse conversion error:", error);
-                errorBox.textContent = `Error during conversion.`;
-                errorBox.classList.remove('hidden');
-            }
+        // Reverted HTML structure
+        resultDiv.innerHTML = `
+            <h3>✅ Conversion Complete</h3>
+            <p>The HTS Year **${htsInput}** is equivalent to:</p>
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">
+                ${gregorianYear} AD
+            </p>
+            <p>This corresponds to Supercycle **${supercycleNumber}**, Epoch **${epochLetter}**, and Year **${yearWithinEpoch}**.</p>
+        `;
+    }
+    
+    // --- FUNCTION 3: Difference Calculator ---
+    function calculateDifference() {
+        const startYearInput = document.getElementById('startYear').value;
+        const endYearInput = document.getElementById('endYear').value;
+        const resultDiv = document.getElementById('result-difference');
+
+        const startYear = parseInt(startYearInput);
+        const endYear = parseInt(endYearInput);
+
+        if (isNaN(startYear) || isNaN(endYear)) {
+            resultDiv.innerHTML = "❌ Please enter valid numerical years in both fields.";
+            return;
         }
         
-        // --- Live Clock Function ---
+        const difference = Math.abs(endYear - startYear);
+        
+        // Reverted HTML structure
+        resultDiv.innerHTML = `
+            <h3>✅ Duration Calculated</h3>
+            <p>The difference between **${startYear} AD** and **${endYear} AD** is:</p>
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">
+                ${difference} Years
+            </p>
+            <p>This is equivalent to a duration of **${difference} HTS Years.**</p>
+        `;
+    }
 
-        function updateLiveClock() {
-            const now = new Date();
-            const htsValue = convertToHTS(now);
-            document.getElementById('liveHtsOutput').textContent = htsValue;
+    // --- FUNCTION 4: Future Year Projector ---
+    function projectFutureYear() {
+        const baseYearInput = document.getElementById('baseYear').value;
+        const yearsToAddInput = document.getElementById('yearsToAdd').value;
+        const resultDiv = document.getElementById('result-project');
+
+        const baseYear = parseInt(baseYearInput);
+        const yearsToAdd = parseInt(yearsToAddInput);
+
+        if (isNaN(baseYear) || isNaN(yearsToAdd) || yearsToAdd < 0) {
+            resultDiv.innerHTML = "❌ Please enter valid, non-negative numbers for the start year and years to add.";
+            return;
         }
         
-        // --- PWA Service Worker Registration ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const path = window.location.pathname;
-                
-                // 1. Service Worker path uses relative path 'sw.js'
-                const serviceWorkerPath = 'sw.js'; 
-                
-                // 2. Calculate the required scope (the directory of the app, e.g., /repo-name/)
-                // This is crucial for GitHub Pages subdirectories.
-                const appScope = path.endsWith('/') 
-                    ? path 
-                    : path.substring(0, path.lastIndexOf('/') + 1);
+        // --- VALIDATION: Limit resulting year to 12 billion ---
+        const MAX_GREGORIAN_LIMIT = 12000000000; 
+        const futureGregorianYear = baseYear + yearsToAdd;
 
-                // 3. Register with the relative path and the explicit scope
-                navigator.serviceWorker.register(serviceWorkerPath, { scope: appScope })
-                    .then(registration => {
-                        console.log('Service Worker registered successfully with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker registration failed: ', error);
-                    });
-            });
+        if (futureGregorianYear > MAX_GREGORIAN_LIMIT) {
+            resultDiv.innerHTML = `
+                <p class="warning-text">⚠️ **Input Limit Exceeded**</p>
+                <p class="warning-text">While we fully expect the Earth to survive for greater than 13 billion years, we limit that input so that years displayed may not exceed **12 billion**.</p>
+                <p>Please enter fewer years to add.</p>
+            `;
+            return;
         }
+        // --- END VALIDATION ---
+        
+        const htsData = getHTSNotation(futureGregorianYear);
 
+        // Reverted HTML structure
+        resultDiv.innerHTML = `
+            <h3>✅ Projection Calculated</h3>
+            <p>Adding **${yearsToAdd} years** to **${baseYear} AD** results in **${futureGregorianYear} AD**.</p>
+            <p>The HTS Year will be:</p>
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">
+                ${htsData.HTS_Epoch_Year}
+            </p>
+            <p>Full HTS Notation: **${htsData.HTS_Full}**</p>
+        `;
+    }
+    
+    // --- FUNCTION 5: Display Load Time (Adjusted for Central Time) ---
+    function displayLoadTime() {
+        const lastUpdatedElement = document.getElementById('last-updated');
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup Event Listeners
-            document.getElementById('convertButton').addEventListener('click', handleConversion);
-            document.getElementById('copyButton').addEventListener('click', copyToClipboard);
-            document.getElementById('reverseConvertButton').addEventListener('click', handleReverseConversion);
+        const updatedOptions = {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZoneName: 'short',
+            // Using America/Chicago for Central Time (CT) 
+            timeZone: 'America/Chicago' 
+        };
 
-            // Run initial conversion for default value
-            handleConversion(); 
-            
-            // Start the live clock update
-            updateLiveClock(); // Run immediately
-            setInterval(updateLiveClock, 100); // Update every 100 milliseconds
-        });
+        const loadTimeStr = scriptLoadTime.toLocaleString('en-US', updatedOptions);
 
-    </script>
+        lastUpdatedElement.innerHTML = `
+            <p>The content was last loaded/updated at:</p>
+            <p style="font-size:1.1em; color: #1a1a2e;"><strong>${loadTimeStr}</strong></p>
+            <p style="margin-top: 10px; font-size:0.8em;">(Time is Central Time - CT)</p>
+        `;
+    }
+
+    // Set the default year and run all conversions on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentYear = new Date().getFullYear(); 
+        
+        // 1. Set default for Conversion tool (Gregorian to HTS)
+        document.getElementById('gregorianYear').value = currentYear;
+        convertToHTS();
+
+        // 2. Set default for HTS to Gregorian tool
+        const currentHTS = getHTSNotation(currentYear);
+        document.getElementById('htsYearInput').value = currentHTS.HTS_Full;
+        convertHTSToGregorian();
+
+        // 3. Set defaults for Difference tool
+        document.getElementById('startYear').value = currentYear;
+        document.getElementById('endYear').value = currentYear + 50; 
+        calculateDifference();
+
+        // 4. Set defaults for Projection tool
+        document.getElementById('baseYear').value = currentYear;
+        document.getElementById('yearsToAdd').value = 100;
+        projectFutureYear();
+
+        // 5. Display the load time in CT
+        displayLoadTime();
+    });
+
+</script>
+
 </body>
 </html>
