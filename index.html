@@ -6,7 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Human Time System (HTS) Converters</title>
 
-    <!-- USER'S CUSTOM STYLES -->
+    <!-- PWA Setup: Link to the Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA Meta Tags (Theme, Apple) -->
+    <meta name="theme-color" content="#4f46e5">
+    <!-- Using a common icon name for simplicity, assume a 512x512 PNG exists -->
+    <link rel="apple-touch-icon" href="icon-512.png"> 
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HTS Tool">
+    <!-- END MOBILE-SPECIFIC PWA ADDITIONS -->
+
     <style>        
         /* Modern, Clean Styling */        
         body {            
@@ -17,6 +28,40 @@
             padding: 20px;            
             background-color: #f0f2f5;        
         }        
+        /* === NEW: Custom Splash Screen Styles === */
+        #custom-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff; /* Matching manifest theme_color */
+            z-index: 9999; /* Ensure it covers everything */
+            color: white;
+            transition: opacity 0.3s ease-out; /* Smooth fade-out */
+        }
+        #custom-splash .splash-logo {
+            width: 128px;
+            height: 128px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        #custom-splash p {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        /* === END Splash Screen Styles === */
+        
         .container {            
             background-color: #ffffff;            
             padding: 40px;            
@@ -140,82 +185,86 @@
             color: #666;            
             font-size: 0.8em;            
             margin-top: 10px;        
+        }
+        /* Style for the main content block that starts hidden */
+        .hidden {
+            display: none !important;
         }    
     </style>
 
-    <!-- PWA Setup: Link to the Manifest -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- PWA Meta Tags (Theme, Apple) -->
-    <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="icon-512.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HTS Tool">
-    <!-- END MOBILE-SPECIFIC PWA ADDITIONS -->
-
 </head>
 <body>
-<!-- USER'S APPLICATION UI/HTML CONTENT -->
-<div class="container">    
-    <div class="logo-container">        
-        <!-- Reverted to original file name as requested -->        
-        <img src="1000035855.png" alt="Human Time System Logo">     
-    </div>
-    <h1>Gregorian Year to HTS Converter</h1>
-    <label for="gregorianYear">Enter Gregorian Year (AD):</label>    
-    <input type="number" id="gregorianYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') convertToHTS()">
-    <button onclick="convertToHTS()">Calculate HTS Year</button>
-    <div id="result-convert">        
-        The current year will be displayed here on load.    
-    </div>
+<!-- === NEW: Custom Splash Screen for Minimum 2-Second Delay === -->
+<div id="custom-splash">
+    <!-- This mirrors the HTS logo used in the manifest -->
+    <div class="splash-logo">HTS</div>
+    <p>Loading HTS Converter Tool...</p>
 </div>
-<!-- HTS to Gregorian Converter -->
-<div class="container">    
-    <h2>HTS Year to Gregorian Converter</h2>        
-    <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>    
-    <input type="text" id="htsYearInput" placeholder="e.g., 1B40000" onkeyup="if(event.key === 'Enter') convertHTSToGregorian()">
-    <button onclick="convertHTSToGregorian()">Calculate Gregorian Year</button>
-    <div id="result-hts-convert">        
-        Enter an HTS year to see the Gregorian equivalent.    
+<!-- === END Splash Screen === -->
+
+<!-- Wrap all application content in this div and hide it initially -->
+<div id="app-content" class="hidden">
+    <!-- USER'S APPLICATION UI/HTML CONTENT -->
+    <div class="container">    
+        <div class="logo-container">        
+            <!-- Reverted to original file name as requested -->        
+            <img src="1000035855.png" alt="Human Time System Logo">     
+        </div>
+        <h1>Gregorian Year to HTS Converter</h1>
+        <label for="gregorianYear">Enter Gregorian Year (AD):</label>    
+        <input type="number" id="gregorianYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') convertToHTS()">
+        <button onclick="convertToHTS()">Calculate HTS Year</button>
+        <div id="result-convert">        
+            The current year will be displayed here on load.    
+        </div>
     </div>
-</div>
-<div class="container">    
-    <h2>Calculate Year Difference (Duration)</h2>        
-    <label for="startYear">Enter Start Gregorian Year:</label>    
-    <input type="number" id="startYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') calculateDifference()">        
-    <label for="endYear">Enter End Gregorian Year:</label>    
-    <input type="number" id="endYear" placeholder="e.g., 2050" onkeyup="if(event.key === 'Enter') calculateDifference()">
-    <button onclick="calculateDifference()">Calculate Duration</button>
-    <div id="result-difference">        
-        Enter two years to see the duration between them.    
+    <!-- HTS to Gregorian Converter -->
+    <div class="container">    
+        <h2>HTS Year to Gregorian Converter</h2>        
+        <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>    
+        <input type="text" id="htsYearInput" placeholder="e.g., 1B40000" onkeyup="if(event.key === 'Enter') convertHTSToGregorian()">
+        <button onclick="convertHTSToGregorian()">Calculate Gregorian Year</button>
+        <div id="result-hts-convert">        
+            Enter an HTS year to see the Gregorian equivalent.    
+        </div>
     </div>
-</div>
-<div class="container">    
-    <h2>Project Future HTS Year</h2>        
-    <label for="baseYear">Start Gregorian Year:</label>    
-    <input type="number" id="baseYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') projectFutureYear()">        
-    <label for="yearsToAdd">Number of Years to Add:</label>    
-    <input type="number" id="yearsToAdd" placeholder="e.g., 50" onkeyup="if(event.key === 'Enter') projectFutureYear()">
-    <button onclick="projectFutureYear()">Calculate Future HTS Year</button>
-    <div id="result-project">        
-        Enter the number of years to add to see the future HTS Year.    
+    <div class="container">    
+        <h2>Calculate Year Difference (Duration)</h2>        
+        <label for="startYear">Enter Start Gregorian Year:</label>    
+        <input type="number" id="startYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') calculateDifference()">        
+        <label for="endYear">Enter End Gregorian Year:</label>    
+        <input type="number" id="endYear" placeholder="e.g., 2050" onkeyup="if(event.key === 'Enter') calculateDifference()">
+        <button onclick="calculateDifference()">Calculate Duration</button>
+        <div id="result-difference">        
+            Enter two years to see the duration between them.    
+        </div>
     </div>
-</div>
-<!-- Last Updated Status Display -->
-<div class="container status-box">    
-    <h2>Application Status</h2>    
-    <div id="last-updated">        
-        Calculating load time...    
+    <div class="container">    
+        <h2>Project Future HTS Year</h2>        
+        <label for="baseYear">Start Gregorian Year:</label>    
+        <input type="number" id="baseYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') projectFutureYear()">        
+        <label for="yearsToAdd">Number of Years to Add:</label>    
+        <input type="number" id="yearsToAdd" placeholder="e.g., 50" onkeyup="if(event.key === 'Enter') projectFutureYear()">
+        <button onclick="projectFutureYear()">Calculate Future HTS Year</button>
+        <div id="result-project">        
+            Enter the number of years to add to see the future HTS Year.    
+        </div>
     </div>
+    <!-- Last Updated Status Display -->
+    <div class="container status-box">    
+        <h2>Application Status</h2>    
+        <div id="last-updated">        
+            Calculating load time...    
+        </div>
+    </div>
+    <footer>    
+        <div class="storcke-logo">        
+            <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">    
+        </div>    
+        <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
+    </footer>
 </div>
-<footer>    
-    <div class="storcke-logo">        
-        <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">    
-    </div>    
-    <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
-</footer>
-<!-- END USER'S UI/HTML CONTENT -->
+<!-- END Application Content -->
 
 <!-- PWA Service Worker Registration Script (Crucial for Installation) -->
 <script>
@@ -225,6 +274,7 @@
         // Introduce a slight delay (100ms) to ensure all environment resources are loaded, 
         // which often resolves "URL protocol not supported" errors in sandboxed contexts.
         setTimeout(() => {
+            // Registering sw.js at the root scope '/'
             navigator.serviceWorker.register('/sw.js')
             .then(registration => {
                 console.log('Service Worker registered successfully with scope: ', registration.scope);
@@ -234,6 +284,24 @@
             });
         }, 100); 
         });
+    }
+
+    /**
+     * Shows the main application content after a delay.
+     * This function is called after all initial app logic is run.
+     */
+    function showAppContent() {
+        const splash = document.getElementById('custom-splash');
+        const content = document.getElementById('app-content');
+
+        // Start the fade-out process
+        splash.style.opacity = '0'; 
+
+        // After the fade transition is complete (300ms), hide it completely
+        setTimeout(() => {
+            splash.style.display = 'none';
+            content.classList.remove('hidden');
+        }, 300); // 300ms matches the CSS transition time
     }
 </script>
 
@@ -456,8 +524,8 @@
         `;    
     }
 
-    // Set the default year and run all conversions on load    
-    document.addEventListener('DOMContentLoaded', () => {        
+    // Set the default year and run all conversions on load (The main app initialization function)    
+    function initializeApp() {
         const currentYear = new Date().getFullYear();                 
 
         // 1. Set default for Conversion tool (Gregorian to HTS)        
@@ -480,7 +548,20 @@
         projectFutureYear();
 
         // 5. Display the load time in CT        
-        displayLoadTime();    
+        displayLoadTime();
+    }
+
+
+    // Run initialization logic first, then enforce the 2-second splash screen
+    document.addEventListener('DOMContentLoaded', () => {        
+        // 1. Run all calculations to prepare the content (while it's still hidden)
+        initializeApp();
+
+        // 2. Set the desired 2000ms (2 second) minimum delay
+        const MINIMUM_SPLASH_TIME = 2000; 
+        
+        // 3. Wait for the minimum time, then call the function to reveal the app
+        setTimeout(showAppContent, MINIMUM_SPLASH_TIME);
     });
 </script>
 </body>
