@@ -60,14 +60,28 @@
             transition: opacity 0.3s ease-out; /* Smooth fade-out */
             text-align: center;
         }
-        #custom-splash .splash-logo {
-            /* Using a large white text block instead of a separate box */
-            font-size: 3.5em; /* Larger font size */
-            font-weight: 900;
-            color: white;
-            padding: 10px 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        
+        /* New style for the image on the splash screen */
+        .splash-logo-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%; /* Make it circular */
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 5px solid white; /* Nice white border */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
+
+        /* Style for the main text on the splash screen */
+        .splash-caption {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: white;
+            padding: 0 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 5px;
+        }
+
         #custom-splash p {
             margin-top: 10px;
             font-size: 1.2em;
@@ -219,14 +233,20 @@
 <body>
 <!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">
-    <!-- Updated logo text -->
-    <div class="splash-logo">Storcke HTS</div>
+    <!-- Image for daughter's picture -->
+    <!-- REPLACE THE SRC URL BELOW WITH THE ACTUAL URL OF YOUR DAUGHTER'S PICTURE -->
+    <img 
+        id="daughter-photo" 
+        src="https://placehold.co/150x150/ffffff/007bff?text=Daughter's+Picture" 
+        alt="Daughter's Photo" 
+        class="splash-logo-image"
+    >
+    <p class="splash-caption">Welcome to the Storcke HTS Tool</p>
     <p>Loading Human Time System Converter...</p>
 </div>
 <!-- === END Splash Screen === -->
 
 <!-- Wrap all application content in this div and hide it initially -->
-<!-- Added padding to this wrapper to control top/bottom spacing of the entire app -->
 <div id="app-content" class="hidden">
     <!-- USER'S APPLICATION UI/HTML CONTENT -->
     <div class="container">    
