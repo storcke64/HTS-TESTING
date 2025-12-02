@@ -7,7 +7,8 @@
     
     <!-- --- PWA Meta Tags (Required for App Installation) --- -->
     <meta name="description" content="A continuous time standard converter for the Human Time System." />
-    <link rel="manifest" href="/manifest.json">
+    <!-- FIX: Changed from /manifest.json to relative path manifest.json -->
+    <link rel="manifest" href="manifest.json"> 
     <meta name="theme-color" content="#4f46e5">
     <link rel="apple-touch-icon" href="icon-192.png"> 
     
@@ -43,7 +44,7 @@
         
         <!-- --- START: Update Status Line (Requested) --- -->
         <p class="text-xs text-yellow-400 font-semibold mb-2 p-1 border border-yellow-700 bg-yellow-900/30 rounded-md inline-block">
-            Update Status: PWA and Scope Fixes Applied
+            Update Status: Manifest Path and Scope Fixes Applied
         </p>
         <!-- --- END: Update Status Line --- -->
 
@@ -254,22 +255,20 @@
         }
         
         // --- PWA Service Worker Registration ---
-        // FIX: Dynamically calculate the path and explicitly set the scope for GitHub Pages.
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const path = window.location.pathname;
                 
-                // 1. Calculate the path to the Service Worker file
-                const serviceWorkerPath = path.endsWith('/index.html') 
-                    ? path.replace('index.html', 'sw.js') 
-                    : '/sw.js';
+                // 1. Service Worker path uses relative path 'sw.js'
+                const serviceWorkerPath = 'sw.js'; 
                 
-                // 2. Calculate the required scope (the directory of the app)
+                // 2. Calculate the required scope (the directory of the app, e.g., /repo-name/)
+                // This is crucial for GitHub Pages subdirectories.
                 const appScope = path.endsWith('/') 
                     ? path 
                     : path.substring(0, path.lastIndexOf('/') + 1);
 
-                // 3. Register with both the path and the explicit scope
+                // 3. Register with the relative path and the explicit scope
                 navigator.serviceWorker.register(serviceWorkerPath, { scope: appScope })
                     .then(registration => {
                         console.log('Service Worker registered successfully with scope: ', registration.scope);
