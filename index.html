@@ -1,217 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTS Temporal Continuity Test Tool</title>
+    
+    <!-- --- PWA Meta Tags (Required for App Installation) --- -->
+    <meta name="description" content="A continuous time standard converter for the Human Time System." />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="icon-192.png"> 
+    
+    <!-- Load Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better aesthetics and readability */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1f2937; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container-card {
+            background-color: #111827; /* Darker card */
+            color: #f3f4f6;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            border: 1px solid #374151;
+        }
+        .input-style, .output-style {
+            background-color: #1f2937;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body class="selection:bg-indigo-700">
+
+    <div id="app" class="container-card max-w-lg w-full p-8 md:p-10 rounded-xl">
+        <h1 class="text-4xl font-extrabold text-indigo-400 mb-2">HTS Continuous Time Demo</h1>
+        <p class="text-sm text-gray-400 mb-6">
+            Converts conventional date/time to the continuous Human Time System (HTS) value, and vice-versa.
+        </p>
+
+        <!-- Live Clock Section -->
+        <div class="mb-8 p-4 bg-indigo-900/30 rounded-lg border border-indigo-700/50">
+            <p class="text-xs font-semibold uppercase text-indigo-300 mb-1">Current HTS Value</p>
+            <p id="liveHtsOutput" class="text-3xl font-mono text-indigo-300 break-words">0.00000000</p>
+        </div>
+
+        <!-- Conversion Block (Gregorian to HTS) -->
+        <div class="space-y-4 mb-10 pb-6 border-b border-gray-700">
+            <h2 class="text-xl font-semibold text-gray-300">1. Gregorian to HTS</h2>
+            <label for="dateTimeInput" class="block text-sm font-medium text-gray-400">
+                Enter Date & Time (e.g., 2025-12-01T10:30)
+            </label>
+            <input type="datetime-local" id="dateTimeInput" class="input-style w-full p-3 border border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" value="2025-12-01T10:30">
+
+            <button id="convertButton" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-500 transition duration-200 shadow-md shadow-indigo-800/50">
+                Convert to HTS Value
+            </button>
+            
+            <div id="htsResultContainer" class="output-style p-4 rounded-lg border border-indigo-700 break-words flex justify-between items-center mt-3">
+                <p id="htsOutput" class="text-xl font-mono text-indigo-300">0.00000000</p>
+                <button id="copyButton" class="text-indigo-500 hover:text-indigo-300 transition duration-150 p-2 rounded-full hidden">
+                    <!-- Copy Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1M8 5h8m-8 0v2m8-2v2m-8 4h8m-8 4h8" />
+                    </svg>
+                </button>
+            </div>
+            <p id="errorBox" class="text-red-400 mt-2 hidden text-sm"></p>
+        </div>
+        
+        <!-- Reverse Conversion Block (HTS to Gregorian) -->
+        <div class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-300">2. HTS to Gregorian</h2>
+            <label for="htsInput" class="block text-sm font-medium text-gray-400">
+                Enter HTS Value (e.g., 20387.4375)
+            </label>
+            <input type="number" step="any" id="htsInput" class="input-style w-full p-3 border border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150" placeholder="Enter HTS Value">
+
+            <button id="reverseConvertButton" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-500 transition duration-200 shadow-md shadow-green-800/50">
+                Convert to Gregorian Date
+            </button>
+            
+            <div id="gregorianResultContainer" class="output-style p-4 rounded-lg border border-green-700 break-words flex justify-between items-center mt-3">
+                <p id="gregorianOutput" class="text-xl font-mono text-green-300">---</p>
+            </div>
+            <p id="reverseErrorBox" class="text-red-400 mt-2 hidden text-sm"></p>
+        </div>
 
 
-<!DOCTYPE html> 
+        <!-- Epoch Reference -->
+        <div class="mt-8 text-xs text-gray-500 pt-4 border-t border-gray-800">
+            <p>* HTS is defined as the continuous floating-point number of standard terrestrial days elapsed since the Unix Epoch: **Jan 1, 1970, 00:00:00 UTC**.</p>
+        </div>
+    </div>
 
-<html translate="no">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=5.0, initial-scale=1.0" />
-		<meta name="thumbnail" content="https://www.photopea.com/promo/screens/scr5.png" />
-		<meta name="theme-color" content="#474747">
-		
-		<title>Photopea | Online Photo Editor</title>
-		<meta name="description" content="Photopea Online Photo Editor lets you edit photos, apply effects, filters, add text, crop or resize pictures. Do Online Photo Editing in your browser for free!" />
-		
-		<link rel="apple-touch-icon" href="promo/icon512.png">
-		<link rel="icon" sizes="512x512" href="promo/icon512.png">
-		<link rel="image_src"  type="image/png"  href="promo/icon512.png" />
-		<link rel="manifest" href="manifest.json">
-		<link rel="chrome-webstore-item" href="//chrome.google.com/webstore/detail/fmophgdjdipcbfjiopifpngdjmemonko">
-		
-		<style>		
-			body, button, input, textarea, select {  font-family: "Open Sans", "Segoe UI",  sans-serif;  }
-			body, input, select, button {  font-size: 13px;  }
-			
-			body {  background-image: radial-gradient(rgb(40,40,50), rgb(10, 0, 10));  }
-			#cap { 
-				font-size:1.2em;
-				padding:0 2% 1em 2%; 
-				color:#e6e6e6;
-			}
-			#cap a { color:inherit;  font-weight:bold;  }
-			#cap p { margin-bottom:1.5em;  line-height:1.5em;  }
-			#cap button {  color:white;  background-color:rgba(0,0,0,0.15);  border:2px solid #3482f6; cursor:pointer; font-size:1.3em; padding:0.4em 1em 0.5em 1em;  border-radius:500px;  display:block;  margin:30px auto;  transition: box-shadow .3s;  }
-			#cap button:hover {  box-shadow: 0 0 30px #3482f6;  }
-			#cap h1 { text-align:center;  font-size: 4em;  margin:0.5em 0 0 0;  }
-			
-			#mid {  max-width:1100px;  margin:0px auto;  }
-			#bar {  padding:0.4em 0;  line-height:2.5em;  }
-			#bar a {  text-decoration:none;  font-weight:normal;  margin:0 10px;  bottom:4px;  position:relative;  }
-			
-			
-			
-			.pair {  display:flex;  margin:3em 0;  }
-			.pair div {  width:50%;  }
-			.pair h2 {  margin:0;  }
-			
-			@media (max-width: 600px) {
-			.pair {  display:block;  margin:3em 1em;  }
-			.pair div {  width:100%;  }
-			}
-			
-			.pair p {  margin: 0.2em 0;  opacity:0.6;  }
-			.pair div {padding: 1em 0;}
-		</style>		
-	</head>
-	
-	<body class="theme0">		
-		<!---->
-		<div id="cap">
-			<div id="bar">
-				<img style="width:36px; height:auto; margin:0 6px -6px 0" width="512" height="512" src="promo/icon512.png" alt="Photopea logo" /> 
-				<b style="font-size:34px;  margin-right:20px">Photopea</b>
-				<a target="_blank" href="//www.photopea.com/learn" title="Learn photo editing">Learn</a>
-				<a target="_blank" href="//www.photopea.com/tuts"  title="Graphics tutorials">Tutorials</a>
-				<a target="_blank" href="//www.photopea.com/templates" title="Free PSD templates">Templates</a>
-				<a target="_blank" href="//www.photopea.com/api"  title="Insert a photo editor into your product">API</a>
-			</div>
-			
-			<h1>Free Online Photo Editor</h1>
-			<h2 style="text-align:center">Unlock your creativity with the best free photo editor.</h2>
-			<p style="text-align:center; font-size:1em; opacity:0.6">Transform your photos with professional-grade tools in a free online photo editor that works right in your browser. No downloads, no hassle.</p>
-			<button onclick="addPP()">Start using Photopea</button>
-			
-			<div id="mid">								
-				<div class="pair">
-					<div style="text-align:center;">
-						<img src="img/table.webp" style="width:80%; height:auto;" width="800" height="800" alt="Photo editor on a laptop" />
-					</div>
-					<div>
-						<h2>Fully Local</h2>
-						<p>There are no uploads. Photopea runs on your device, using your CPU and your GPU. All files open instantly, and never leave your device.</p>
-						
-						<h2>Cost-Effective</h2>
-						<p>Enjoy all the premium features without spending a dime.</p>
-						
-						<h2>Convenient Editor</h2>
-						<p>No need to install heavy software on your device. Just open your browser and start editing.</p>
-						
-						<h2>Runs Everywhere</h2>
-						<p>Our photo editor runs on any device. The better hardware you have, the better it runs.</p>
-						
-						<button onclick="addPP()">Start using Photopea</button>
-						
-					</div>
-				</div>
-				
-				
-				<div class="pair">
-					<div>
-						
-						<h2>Professional Editor</h2>
-						<p>Photopea offers a full suite of editing tools, from basic features like cropping and resizing to advanced features such as layering, masking, and blending.</p>
-						
-						<h2>Full PSD support</h2>
-						<p>Photopea fully supports a popular PSD format, both opening and saving files. It is the main format of Photopea.</p>
-						
-						<h2>Swiss knife for graphics</h2>
-						<p>Open and edit PNG, JPG, GIF, BMP, WEBP, SVG, PDF, AI, AVIF, DDS, HEIC, TIFF, MP4, TGA, CDR, PDN, EPS, INDD, Figma and 
-						<a target="_blank" href="//github.com/photopea/photopea?tab=readme-ov-file#supported-formats">40 other formats</a>.</p>
-					
-						<h2>Perfect RAW support</h2>
-						<p>Photopea opens DNG, CR2, CR3, NEF, ARW, RW2, RAF, ORF and FFF files. Set the Exposure, Color Balance, 
-						Contrast, Highlights and Shadows, etc.</p>
-						<button onclick="addPP()">Start using Photopea</button>
-					</div>
-					<div style="text-align:center;">
-						<img src="img/hand_phone.webp" style="width:70%; height:auto;" width="1044" height="1328" alt="Photo editor on a phone" />
-					</div>
-				</div>
-				
-				
-				<div class="pair">
-					<div style="text-align:center">
-						<video style="width:80%; height:auto;" muted loop autoplay>
-						  <source src="img/goats.mp4" type="video/mp4">
-						</video>
-						<!---->
-					</div>
-					<div>
-						<h2>State-of-the-art AI</h2>
-						<p><a target="_blank" href="//x.com/photopeacom/status/1735723561950539852/video/1">Remove background with one click</a>,
-						or <a target="_blank" href="//x.com/photopeacom/status/1661425407944425494/video/1">replace any part of an image</a>
-						with a new content through a text description.</p>
-						
-						<h2>All Essential Features</h2>
-						<p>We have Layers, Masks, Layer Styles, Smart Objects, Adjustment Layers, Channels, Paths and more!</p>
-						
-						<h2>Adjustments and Filters</h2>
-						<p>Do you need Levels and Curves? A Gaussian Blur? Or advanced stuff such as Liquify or Puppet Warp? We have it all!</p>
-						
-						<h2>Vector Graphics</h2>
-						<p>Create and edit vector graphics directly within the editor. Perfect foo designers working on logos, icons, or illustrations.</p>
-						
-						<button onclick="addPP()">Start using Photopea</button>
-					</div>
-				</div>
-				
-				<h2 style="text-align:center">Who Can Benefit from our Free Photo Editor?</h2>
-				<div class="pair">
-					<div>
-						<h2>Social Media Enthusiasts</h2>
-						<p>Enhance your photos before sharing them on platforms like Instagram, Facebook, or Twitter. Make every post stand out with unique edits.</p>
+    <script>
+        // --- Core HTS Constants ---
+        // Set the HTS reference epoch to Jan 1, 1970, 00:00:00 UTC (Unix Epoch)
+        const HTS_EPOCH_MS = 0; 
+        // 1 HTS Unit is equivalent to the milliseconds in one standard terrestrial day.
+        const MS_PER_DAY = 86400000; 
 
-						<h2>Students and Educators</h2>
-						<p>Create stunning visuals for presentations, assignments, and more. Our free online photo editor is a great tool for educational projects.</p>
+        // --- Functions: Gregorian to HTS ---
 
-						<h2>Small Business Owners</h2>
-						<p>Design promotional materials, edit product photos, and create engaging content for your website or online store, all without spending on expensive software.</p>
+        /**
+         * Converts a standard Date object into a continuous Human Time System (HTS) value.
+         */
+        function convertToHTS(date) {
+            const timeDifferenceMs = date.getTime() - HTS_EPOCH_MS;
+            // Calculate the continuous number of days (or HTS units)
+            const htsValue = timeDifferenceMs / MS_PER_DAY;
+            
+            // Format to 8 decimal places for high precision demonstration
+            return htsValue.toFixed(8); 
+        }
 
-						<h2>Graphic Designers</h2>
-						<p>Whether you’re a freelancer or part of a design team, Photopea’s free photo editor offers all the features you need to produce professional-quality work.</p>
-							
-						<button onclick="addPP()">Start using Photopea</button>
-					</div>
-					<div style="text-align:center;">
-						<img src="img/laptop.webp" style="width:80%; height:auto;" width="853" height="853" alt="Freelancer using a photo editor" />
-					</div>
-				</div>
-				
-				<p style="text-align:center">
-				  <a href="mailto:support@photopea.com">support@photopea.com</a> 
-				| <a target="_blank" href="/privacy.html">Privacy Policy</a>
-				| <a target="_blank" href="//x.com/photopeacom">Twitter</a>
-				| <a target="_blank" href="//facebook.com/photopea/">Facebook</a>
-				| <a target="_blank" href="//reddit.com/r/photopea/">Reddit</a>
-				</p>
-			</div>
-		</div>
-		<!---->
-		
-		<script>
-			window.___osw = window.innerWidth;  console.log(window.innerWidth);
-			var cap = document.getElementById("cap"), added=false;
-			var href = window.location.href;
-			var ls = window.localStorage, ppp=null;  if(ls) {  ppp=ls.getItem("_ppp");  if(ppp) ppp=JSON.parse(ppp);  }  if(ppp==null) ppp={};
-			
-			function addPP() {
-				cap.style.display="none";  
-				if(ppp) {  ppp["capShown"]="false";  ls.setItem("_ppp", JSON.stringify(ppp));   }
-				if(added) return;  added=true;  console.log("adding");
-				var fls = [
-					"style/all09.css",
-					"code/ext/ext1764460407.js",
-					"code/dbs/DBS1764527275.js",
-					"code/pp/pp1764627426.js"
-				];
-				var fromCDN = window.location.host=="www.photopea.com" && !window.location.href.endsWith("nocdn");
-				var ao = window.location.ancestorOrigins;
-				if(ao) for(var i=0; i<ao.length; i++) if(ao[i].indexOf("figma.com")!=-1) fromCDN=false;
-				
-				for(var i=0; i<fls.length; i++) {
-					var url = (fromCDN?"//vecpea.com/":"")+fls[i], isJS = url.endsWith(".js");
-					var el = document.createElement(isJS ? "script" : "link");
-					el.setAttribute(isJS ? "src" : "href",url);
-					if(!isJS) el.setAttribute("rel","stylesheet");
-					else el.async=false;
-					
-					(isJS ? document.body : document.head).appendChild(el);
-				}
-			}
-			
-			if(href.indexOf("#")!=-1 || href.indexOf("=")!=-1 || ppp["capShown"]=="false") addPP();
-			else cap.style.display="";		
-		</script>
-	</body>
+        function handleConversion() {
+            const inputElement = document.getElementById('dateTimeInput');
+            const outputElement = document.getElementById('htsOutput');
+            const errorBox = document.getElementById('errorBox');
+            const copyButton = document.getElementById('copyButton');
+            
+            // Clear previous errors
+            errorBox.classList.add('hidden');
+            errorBox.textContent = '';
+            outputElement.textContent = '0.00000000';
+            copyButton.classList.add('hidden'); 
 
+            const dateTimeString = inputElement.value;
+            
+            if (!dateTimeString) {
+                errorBox.textContent = 'Please enter a valid date and time.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Treats the input as local time and gets the UTC milliseconds
+                const date = new Date(dateTimeString);
+                
+                if (isNaN(date.getTime())) {
+                    throw new Error("Invalid date input.");
+                }
+
+                const htsResult = convertToHTS(date);
+                outputElement.textContent = htsResult;
+                copyButton.classList.remove('hidden'); 
+                
+            } catch (error) {
+                console.error("Conversion error:", error);
+                errorBox.textContent = `Error: Could not parse date. Please check the format.`;
+                errorBox.classList.remove('hidden');
+            }
+        }
+        
+        /**
+         * Copies the HTS output text to the clipboard.
+         */
+        function copyToClipboard() {
+            const outputElement = document.getElementById('htsOutput');
+            const textToCopy = outputElement.textContent;
+            const copyButton = document.getElementById('copyButton');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed'; 
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+                    setTimeout(() => {
+                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-1M8 5h8m-8 0v2m8-2v2m-8 4h8m-8 4h8" /></svg>`;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Could not copy text: ', err);
+                const errorBox = document.getElementById('errorBox');
+                errorBox.textContent = 'Copy failed. Please copy manually.';
+                errorBox.classList.remove('hidden');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // --- Functions: HTS to Gregorian ---
+
+        /**
+         * Converts a continuous HTS value back to a standard Gregorian date string (UTC).
+         * @param {number} htsValue - The HTS continuous value.
+         * @returns {string} The formatted UTC Gregorian date string.
+         */
+        function convertFromHTS(htsValue) {
+            const timeDifferenceMs = htsValue * MS_PER_DAY;
+            const targetMs = HTS_EPOCH_MS + timeDifferenceMs;
+            
+            // Create a Date object from the calculated milliseconds
+            const date = new Date(targetMs);
+            
+            // Return a clean, human-readable UTC string
+            return date.toUTCString();
+        }
+
+        function handleReverseConversion() {
+            const inputElement = document.getElementById('htsInput');
+            const outputElement = document.getElementById('gregorianOutput');
+            const errorBox = document.getElementById('reverseErrorBox');
+
+            // Clear previous errors
+            errorBox.classList.add('hidden');
+            errorBox.textContent = '';
+            outputElement.textContent = '---';
+
+            const htsString = inputElement.value;
+            const htsValue = parseFloat(htsString);
+
+            if (isNaN(htsValue) || htsString.trim() === '') {
+                errorBox.textContent = 'Please enter a valid numeric HTS Value.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const gregorianResult = convertFromHTS(htsValue);
+                outputElement.textContent = gregorianResult;
+            } catch (error) {
+                console.error("Reverse conversion error:", error);
+                errorBox.textContent = `Error during conversion.`;
+                errorBox.classList.remove('hidden');
+            }
+        }
+        
+        // --- Live Clock Function ---
+
+        function updateLiveClock() {
+            const now = new Date();
+            const htsValue = convertToHTS(now);
+            document.getElementById('liveHtsOutput').textContent = htsValue;
+        }
+        
+        // --- PWA Service Worker Registration ---
+        // This registers the Service Worker for offline functionality and PWA installation.
+        // NOTE: For full PWA functionality, you MUST create 'manifest.json' and 'sw.js'
+        // in the root of your GitHub repository.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed: ', error);
+                    });
+            });
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Event Listeners
+            document.getElementById('convertButton').addEventListener('click', handleConversion);
+            document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+            document.getElementById('reverseConvertButton').addEventListener('click', handleReverseConversion);
+
+            // Run initial conversion for default value
+            handleConversion(); 
+            
+            // Start the live clock update
+            updateLiveClock(); // Run immediately
+            setInterval(updateLiveClock, 100); // Update every 100 milliseconds
+        });
+
+    </script>
+</body>
 </html>
