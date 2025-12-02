@@ -234,12 +234,13 @@
 <!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">
     <!-- Image for daughter's picture -->
-    <!-- REPLACE THE SRC URL BELOW WITH THE ACTUAL URL OF YOUR DAUGHTER'S PICTURE -->
+    <!-- IMPORTANT: Make sure the SRC below exactly matches the filename you uploaded to your server! -->
     <img 
         id="daughter-photo" 
-        src="https://placehold.co/150x150/ffffff/007bff?text=Daughter's+Picture" 
+        src="daughter_photo.jpg" 
         alt="Daughter's Photo" 
         class="splash-logo-image"
+        onerror="this.onerror=null; this.src='https://placehold.co/150x150/ffffff/ff0000?text=Image+Missing'"
     >
     <p class="splash-caption">Welcome to the Storcke HTS Tool</p>
     <p>Loading Human Time System Converter...</p>
