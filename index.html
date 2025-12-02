@@ -32,12 +32,14 @@
             display: flex;            
             flex-direction: column;            
             align-items: center;            
-            padding: 20px;            
+            /* Reduced padding to rely on inner container margins for centering */
+            padding: 0;            
             background-color: #f0f2f5;        
             
             /* --- JIGGLE FIX START --- */
             margin: 0; 
             overflow-x: hidden;
+            width: 100%; /* Ensure body spans full width */
             /* --- JIGGLE FIX END --- */
         }        
 
@@ -71,16 +73,25 @@
             font-size: 1.2em;
         }
         /* === END Splash Screen Styles === */
+
+        /* Main app content wrapper to handle spacing from the top */
+        #app-content {
+            padding: 20px 0; /* Add vertical padding */
+            width: 100%; /* Ensure it spans the full width */
+        }
         
+        /* === Centering Fix: Apply margin: auto to containers with fixed max-width === */
         .container {            
             background-color: #ffffff;            
-            padding: 40px;            
+            padding: 40px 20px; /* Adjusted horizontal padding */
             border-radius: 12px;            
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);            
             width: 90%;            
-            max-width: 450px;            
-            text-align: center;            
-            margin-bottom: 30px;        
+            max-width: 450px;
+            /* --- CENTERING FIX START --- */
+            margin: 0 auto 30px auto; /* Centers horizontally and adds bottom margin */
+            /* --- CENTERING FIX END --- */
+            text-align: center;
         }        
         /* Logo Styling */        
         .logo-container {            
@@ -160,12 +171,14 @@
         }        
         /* Status Box Styling */        
         .status-box {            
-            padding: 15px;            
+            padding: 15px 20px;
             background-color: #f8f9fa;            
             border: 1px solid #dee2e6;            
             font-size: 0.9em;            
             /* Ensure it has margin at the bottom before the footer */            
-            margin-bottom: 30px;         
+            margin: 0 auto 30px auto; /* CENTERING FIX */
+            width: 90%;            
+            max-width: 450px;         
         }        
         .status-box h2 {            
             font-size: 1.1em;            
@@ -179,10 +192,10 @@
         }        
         /* Footer/New Logo Styling */        
         footer {            
-            margin-top: 40px;            
+            margin: 40px auto 40px auto; /* CENTERING FIX */
             padding-top: 20px;            
             border-top: 1px solid #ccc;            
-            width: 100%;            
+            width: 90%;            
             max-width: 450px;            
             text-align: center;        
         }        
@@ -213,6 +226,7 @@
 <!-- === END Splash Screen === -->
 
 <!-- Wrap all application content in this div and hide it initially -->
+<!-- Added padding to this wrapper to control top/bottom spacing of the entire app -->
 <div id="app-content" class="hidden">
     <!-- USER'S APPLICATION UI/HTML CONTENT -->
     <div class="container">    
@@ -261,7 +275,7 @@
         </div>
     </div>
     <!-- Last Updated Status Display -->
-    <div class="container status-box">    
+    <div class="status-box">    
         <h2>Application Status</h2>    
         <div id="last-updated">        
             Calculating load time...    
