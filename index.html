@@ -40,6 +40,13 @@
 
     <div id="app" class="container-card max-w-lg w-full p-8 md:p-10 rounded-xl">
         <h1 class="text-4xl font-extrabold text-indigo-400 mb-2">HTS Continuous Time Demo</h1>
+        
+        <!-- --- START: Update Status Line (Requested) --- -->
+        <p class="text-xs text-yellow-400 font-semibold mb-2 p-1 border border-yellow-700 bg-yellow-900/30 rounded-md inline-block">
+            Update Status: PWA and Scope Fixes Applied
+        </p>
+        <!-- --- END: Update Status Line --- -->
+
         <p class="text-sm text-gray-400 mb-6">
             Converts conventional date/time to the continuous Human Time System (HTS) value, and vice-versa.
         </p>
@@ -247,16 +254,23 @@
         }
         
         // --- PWA Service Worker Registration ---
-        // FIX: Dynamically calculate the path for GitHub Pages subdomains.
+        // FIX: Dynamically calculate the path and explicitly set the scope for GitHub Pages.
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // This converts paths like /repo-name/index.html to /repo-name/sw.js
                 const path = window.location.pathname;
+                
+                // 1. Calculate the path to the Service Worker file
                 const serviceWorkerPath = path.endsWith('/index.html') 
                     ? path.replace('index.html', 'sw.js') 
                     : '/sw.js';
+                
+                // 2. Calculate the required scope (the directory of the app)
+                const appScope = path.endsWith('/') 
+                    ? path 
+                    : path.substring(0, path.lastIndexOf('/') + 1);
 
-                navigator.serviceWorker.register(serviceWorkerPath)
+                // 3. Register with both the path and the explicit scope
+                navigator.serviceWorker.register(serviceWorkerPath, { scope: appScope })
                     .then(registration => {
                         console.log('Service Worker registered successfully with scope: ', registration.scope);
                     })
