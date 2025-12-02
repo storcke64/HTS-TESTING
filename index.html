@@ -19,7 +19,14 @@
     <!-- END MOBILE-SPECIFIC PWA ADDITIONS -->
 
     <style>        
-        /* Modern, Clean Styling */        
+        /* * FIX FOR MOBILE JIGGLE: 
+         * 1. Set box-sizing to border-box for predictable widths.
+         * 2. Set margin: 0 and explicitly hide horizontal overflow on the body. 
+         */
+        * {
+            box-sizing: border-box;
+        }
+
         body {            
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;            
             display: flex;            
@@ -27,7 +34,13 @@
             align-items: center;            
             padding: 20px;            
             background-color: #f0f2f5;        
+            
+            /* --- JIGGLE FIX START --- */
+            margin: 0; 
+            overflow-x: hidden;
+            /* --- JIGGLE FIX END --- */
         }        
+
         /* === Custom Splash Screen Styles (Updated) === */
         #custom-splash {
             position: fixed;
