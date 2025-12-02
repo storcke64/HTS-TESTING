@@ -28,7 +28,7 @@
             padding: 20px;            
             background-color: #f0f2f5;        
         }        
-        /* === NEW: Custom Splash Screen Styles === */
+        /* === Custom Splash Screen Styles (Updated) === */
         #custom-splash {
             position: fixed;
             top: 0;
@@ -43,21 +43,18 @@
             z-index: 9999; /* Ensure it covers everything */
             color: white;
             transition: opacity 0.3s ease-out; /* Smooth fade-out */
+            text-align: center;
         }
         #custom-splash .splash-logo {
-            width: 128px;
-            height: 128px;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            font-weight: bold;
-            color: #007bff;
+            /* Using a large white text block instead of a separate box */
+            font-size: 3.5em; /* Larger font size */
+            font-weight: 900;
+            color: white;
+            padding: 10px 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         #custom-splash p {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 1.2em;
         }
         /* === END Splash Screen Styles === */
@@ -194,11 +191,11 @@
 
 </head>
 <body>
-<!-- === NEW: Custom Splash Screen for Minimum 2-Second Delay === -->
+<!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">
-    <!-- This mirrors the HTS logo used in the manifest -->
-    <div class="splash-logo">HTS</div>
-    <p>Loading HTS Converter Tool...</p>
+    <!-- Updated logo text -->
+    <div class="splash-logo">Storcke HTS</div>
+    <p>Loading Human Time System Converter...</p>
 </div>
 <!-- === END Splash Screen === -->
 
@@ -552,13 +549,13 @@
     }
 
 
-    // Run initialization logic first, then enforce the 2-second splash screen
+    // Run initialization logic first, then enforce the 4-second splash screen
     document.addEventListener('DOMContentLoaded', () => {        
         // 1. Run all calculations to prepare the content (while it's still hidden)
         initializeApp();
 
-        // 2. Set the desired 2000ms (2 second) minimum delay
-        const MINIMUM_SPLASH_TIME = 2000; 
+        // 2. Set the desired 4000ms (4 second) minimum delay
+        const MINIMUM_SPLASH_TIME = 4000; 
         
         // 3. Wait for the minimum time, then call the function to reveal the app
         setTimeout(showAppContent, MINIMUM_SPLASH_TIME);
