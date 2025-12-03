@@ -46,14 +46,13 @@
             margin: 0 auto 30px auto; 
             text-align: center;
         }        
-        /* Logo Styling */        
+        /* Logo Styling - Targeting SVG elements now */        
         .logo-container {            
             margin-bottom: 25px;        
         }        
-        /* Reverted CSS to target IMG element */
-        .logo-container img {            
-            max-width: 180px;             
-            height: auto;            
+        .logo-container svg {            
+            width: 180px; /* Explicit width for main logo SVG */
+            height: 40px; /* Explicit height for main logo SVG */
             display: block;            
             margin: 0 auto;        
         }        
@@ -133,7 +132,7 @@
             margin: 0 auto 30px auto; 
             width: 90%;            
             max-width: 450px;         
-            text-align: center; /* FIX: Center the text content inside the box */
+            text-align: center;
         }        
         .status-box h2 {            
             font-size: 1.1em;            
@@ -154,10 +153,9 @@
             max-width: 450px;            
             text-align: center;        
         }        
-        /* Reverted CSS to target IMG element */
-        .storcke-logo img {            
-            max-width: 150px;            
-            height: auto;            
+        .storcke-logo svg {            
+            width: 150px; /* Explicit width for footer logo SVG */
+            height: 40px; /* Explicit height for footer logo SVG */
             opacity: 0.7;        
         }        
         .footer-text {            
@@ -168,12 +166,14 @@
     </style>
 </head>
 <body>
-<!-- The application content is now always visible, as Tauri manages the window -->
 <div id="app-content">
     <div class="container">    
         <div class="logo-container">        
-            <!-- REVERTED to external image URL -->
-            <img src="https://placehold.co/180x40/007bff/ffffff?text=STORCKE+HTS" alt="STORCKE HTS Logo">     
+            <!-- INLINE SVG: Minimal and guaranteed to load -->
+            <svg width="180" height="40" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="STORCKE HTS Logo">
+              <rect width="180" height="40" fill="#007bff"/>
+              <text x="90" y="24" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="bold">STORCKE HTS</text>
+            </svg>
         </div>
         <!-- 4. Optimized H1 Tag: Primary keyword focus -->
         <h1>Official Human Time System (HTS) Converter</h1>
@@ -225,8 +225,11 @@
     </div>
     <footer>    
         <div class="storcke-logo">        
-            <!-- REVERTED to external image URL -->
-            <img src="https://placehold.co/150x40/007bff/ffffff?text=Storcke+HTS+Tool" alt="Storcke HTS Tool">    
+            <!-- INLINE SVG: Minimal and guaranteed to load -->
+            <svg width="150" height="40" viewBox="0 0 150 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Storcke HTS Tool Logo">
+              <rect width="150" height="40" fill="#007bff"/>
+              <text x="75" y="24" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle">Storcke HTS Tool</text>
+            </svg>
         </div>    
         <!-- 4. Footer Text: Includes full branding for keyword density -->
         <p class="footer-text">This Human Time System (HTS) tool is proudly powered by **Storcke Family Products**.</p>
