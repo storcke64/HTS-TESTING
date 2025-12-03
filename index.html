@@ -13,7 +13,10 @@
     <meta name="theme-color" content="#4f46e5">    
     
     <!-- PWA ICON FIX: Explicitly setting the daughter's photo as the main PWA icon -->
-    <!-- This ensures the HTS logo and the footer logo are NOT used for installation. -->
+    <!-- Added rel="icon" and rel="shortcut icon" to force the browser to use daughter_photo.png 
+         for all desktop and mobile PWA contexts. -->
+    <link rel="icon" type="image/png" href="daughter_photo.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="daughter_photo.png" sizes="192x192">
     <link rel="apple-touch-icon" href="daughter_photo.png">     
     <meta name="apple-mobile-web-app-capable" content="yes">    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">    
