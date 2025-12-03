@@ -360,8 +360,8 @@
         console.log('SW Registration: Window loaded, attempting registration in 100ms...');
         // Introduce a slight delay (100ms) to ensure all environment resources are loaded,         
         setTimeout(() => {            
-            // Registering sw.js at the root scope '/'            
-            navigator.serviceWorker.register('/sw.js')            
+            // FIX: Changed registration path from absolute ('/sw.js') to relative ('./sw.js')
+            navigator.serviceWorker.register('./sw.js')            
             .then(registration => {                
                 console.log('SW Registration: Success with scope: ', registration.scope);            
             })            
