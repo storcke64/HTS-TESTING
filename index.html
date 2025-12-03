@@ -34,7 +34,7 @@
             background-color: #f0f2f5;                
         }        
         
-        /* === Custom Splash Screen Styles (Optimized for Transparent PNG) === */        
+        /* === Custom Splash Screen Styles (With Image) === */        
         #custom-splash {            
             position: fixed;            
             top: 0;            
@@ -53,16 +53,18 @@
         }                
         /* Style for the image on the splash screen */        
         .splash-logo-image {            
-            /* The desired icon is the main HTS logo (1000035855.png) */
-            width: 300px;             
-            height: 300px;
+            width: 250px;             
+            height: 250px;
             object-fit: contain;            
-            margin-bottom: 20px;        
+            margin-bottom: 20px;
+            border-radius: 12px; /* Add some rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background-color: white; /* Ensure visibility if image is transparent */        
         }
 
         /* Style for the main text on the splash screen */        
         .splash-caption {            
-            font-size: 1.8em;            
+            font-size: 2.2em; 
             font-weight: 700;            
             color: white;            
             padding: 0 20px;            
@@ -72,7 +74,7 @@
 
         #custom-splash p {            
             margin-top: 10px;            
-            font-size: 1.2em;        
+            font-size: 1.4em;       
         }        
         /* === END Splash Screen Styles === */
 
@@ -207,33 +209,30 @@
             display: none !important;        
         }        
 
-        /* Style for the critical logo error message */
+        /* Style for the logo error message in the main content */
         #logo-status {
-            color: yellow; 
+            color: #ff4500; /* Red warning text */
             margin-top: 10px;
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-            max-width: 90%;
             padding: 10px;
-            background: rgba(255, 0, 0, 0.7);
+            background: #ffe0e0; /* Light red background */
             border-radius: 8px;
+            border: 1px solid #ff4500;
         }
     </style>
 </head>
 <body>
 
-<!-- === Custom Splash Screen (4-Second Delay) === -->
+<!-- === Custom Splash Screen (4-Second Delay) - NOW WITH DAUGHTER'S IMAGE === -->
 <div id="custom-splash">    
-    <!-- Image source is now the HTS Logo, with custom error handler -->    
+    <!-- MANDATORY: Daughter's Photo set to the user-provided filename -->
     <img         
-        id="main-hts-logo"         
-        src="1000035855.png"         
-        alt="Main HTS Logo (Daughter's Picture)"         
-        class="splash-logo-image"        
-        onload="console.log('Logo: 1000035855.png loaded successfully.');"
-        onerror="handleLogoError(this);"    
-    >    
-    <div id="logo-status"></div>
+        id="daughter-photo"         
+        src="daughter_photo.png"
+        alt="Daughter's Photo"         
+        class="splash-logo-image"
+        onerror="handleLogoError(this, 'daughter_photo.png');" 
+    >
     <p class="splash-caption">Welcome to the Storcke HTS Tool</p>    
     <p>Loading Human Time System Converter...</p>
 </div>
@@ -244,9 +243,15 @@
     
     <!-- CONVERTER 1: Gregorian to HTS -->    
     <div class="container">            
-        <div class="logo-container">                    
-            <!-- Main HTS Logo (Displayed in content) -->                    
-            <img src="1000035855.png" alt="Human Time System Logo (Daughter's Picture)">             
+        <div class="logo-container" id="main-logo-container">                    
+            <!-- Main HTS Logo (Displayed in content) - Error handler shows notice if missing -->                    
+            <img 
+                id="main-content-logo" 
+                src="1000035855.png" 
+                alt="Human Time System Logo"
+                onerror="handleLogoError(this, '1000035855.png');" 
+            >
+            <!-- Error status div will be inserted here by JS if image fails -->
         </div>        
         <h1>Gregorian Year to HTS Converter</h1>
         <label for="gregorianYear">Enter Gregorian Year (AD):</label>            
@@ -328,7 +333,11 @@
     <footer>            
         <div class="storcke-logo">                    
             <!-- Footer Logo - Not to be used as PWA icon -->
-            <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">            
+            <img 
+                src="storcke_hts_logo.png" 
+                alt="Storcke HTS Tool"
+                onerror="handleLogoError(this, 'storcke_hts_logo.png');" 
+            >            
         </div>            
         <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
         
@@ -344,13 +353,23 @@
 <!-- PWA Service Worker Registration Script (Crucial for Installation) -->
 <script>    
     // Function to handle the logo loading failure and provide feedback
-    function handleLogoError(imgElement) {
-        console.error("CRITICAL ERROR: 1000035855.png failed to load.");
+    function handleLogoError(imgElement, filename) {
+        console.error("CRITICAL ERROR: Logo failed to load:", filename);
         imgElement.onerror = null; // Prevent infinite loop
-        imgElement.src = 'https://placehold.co/300x300/ffffff/ff0000?text=Logo+Missing';
         
-        const statusDiv = document.getElementById('logo-status');
-        statusDiv.innerHTML = "⚠️ **ERROR: Image file (1000035855.png) not found!** This is why your daughter's picture is missing. Please ensure the image file is uploaded correctly in the root folder.";
+        // Use a generic placeholder image for the missing logo
+        imgElement.src = `https://placehold.co/180x180/007bff/ffffff?text=${encodeURIComponent(filename)}`;
+        
+        // Create or find the status div in the main content container
+        let statusDiv = document.getElementById('logo-status');
+        if (!statusDiv) {
+            statusDiv = document.createElement('div');
+            statusDiv.id = 'logo-status';
+            // Insert the status div right after the failing image element
+            imgElement.parentNode.insertBefore(statusDiv, imgElement.nextSibling);
+        }
+
+        statusDiv.innerHTML = `⚠️ **ERROR:** The image (**${filename}**) was not found. Please ensure the file is uploaded correctly.`;
     }
 
     // Service Worker registration logic    
