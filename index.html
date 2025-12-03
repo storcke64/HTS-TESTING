@@ -43,7 +43,7 @@
             /* --- JIGGLE FIX END --- */
         }        
 
-        /* === Custom Splash Screen Styles (Updated: Image is now rectangular) === */
+        /* === Custom Splash Screen Styles (Optimized for Transparent PNG) === */
         #custom-splash {
             position: fixed;
             top: 0;
@@ -61,16 +61,15 @@
             text-align: center;
         }
         
-        /* Style for the image on the splash screen - Now rectangular and large */
+        /* Style for the image on the splash screen */
         .splash-logo-image {
-            /* Use a max-width and height to make it large, but allow it to shrink on small screens */
-            max-width: 80vw; /* Take up to 80% of viewport width */
-            max-height: 80vh; /* Take up to 80% of viewport height */
-            height: auto;
-            width: auto;
-            object-fit: contain; /* Ensures the whole image is visible, perfect for images with their own borders */
+            /* We will use a fixed, prominent size */
+            width: 300px; 
+            height: 300px;
+            object-fit: contain; /* Ensures the whole image is visible */
             margin-bottom: 20px;
-            /* Border and box-shadow removed as the image already has the white space/border */
+            /* No border-radius or background is needed here. 
+               The image will sit directly on the blue background. */
         }
 
         /* Style for the main text on the splash screen */
@@ -234,15 +233,15 @@
 <body>
 <!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">
-    <!-- Image for daughter's picture -->
-    <!-- IMPORTANT: The image is now displayed rectangularly and scaled to fit the screen, 
-         showing the full image (circular logo + white space) as you requested. -->
+    <!-- 
+        *** IMAGE FILEPATH UPDATED *** Changed source from .jpg to .png to match the new circular image with transparent background.
+    -->
     <img 
         id="daughter-photo" 
-        src="daughter_photo.jpg" 
+        src="daughter_photo.png" 
         alt="Daughter's Photo" 
         class="splash-logo-image"
-        onerror="this.onerror=null; this.src='https://placehold.co/400x400/ffffff/ff0000?text=Image+Missing'"
+        onerror="this.onerror=null; this.src='https://placehold.co/300x300/ffffff/ff0000?text=Logo+Missing'"
     >
     <p class="splash-caption">Welcome to the Storcke HTS Tool</p>
     <p>Loading Human Time System Converter...</p>
