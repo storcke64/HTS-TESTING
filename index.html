@@ -1,18 +1,28 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- SEO Optimization START -->
+    <!-- Basic setup and title from user's code -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 1. Optimized Title Tag: Front-loads primary keywords -->
-    <title>STORCKE HTS Converter: Official Human Time System Calculator by Storcke Family Products</title>
-    <!-- 2. Optimized Meta Description: Compelling, keyword-rich summary -->
-    <meta name="description" content="Use the official STORCKE HTS Converter to translate any Gregorian year (AD) into the Human Time System (HTS) Epoch and Supercycle notation. Essential tool for Deep Time planning and risk mitigation by Storcke Family Products.">
-    <!-- 3. Keywords Meta Tag (Although less important now, good practice) -->
-    <meta name="keywords" content="Human Time System, HTS, STORCKE HTS, Storcke Family Products, HTS Calculator, Deep Time, Temporal Debt, Epoch Converter, Gregorian HTS">
-    <!-- SEO Optimization END -->
+    <title>Human Time System (HTS) Converters</title>
+
+    <!-- PWA Setup: Link to the Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA Meta Tags (Theme, Apple) -->
+    <meta name="theme-color" content="#4f46e5">
+    <!-- Using a common icon name for simplicity, assume a 512x512 PNG exists -->
+    <link rel="apple-touch-icon" href="icon-512.png"> 
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HTS Tool">
+    <!-- END MOBILE-SPECIFIC PWA ADDITIONS -->
 
     <style>        
+        /* * FIX FOR MOBILE JIGGLE: 
+         * 1. Set box-sizing to border-box for predictable widths.
+         */
         * {
             box-sizing: border-box;
         }
@@ -22,42 +32,85 @@
             display: flex;            
             flex-direction: column;            
             align-items: center;            
+            /* Reduced padding to rely on inner container margins for centering */
             padding: 0;            
             background-color: #f0f2f5;        
-            margin: 0;
-            min-height: 100vh;
         }        
 
-        /* Main app content wrapper */
-        #app-content {
-            padding: 20px 0; 
-            width: 100%; 
-            /* Max width for desktop viewing */
-            max-width: 900px;
+        /* === Custom Splash Screen Styles (Optimized for Transparent PNG) === */
+        #custom-splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            /* REVERTED TO 100vw (This was the source of the potential jiggle) */
+            width: 100vw; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff; /* Matching manifest theme_color */
+            z-index: 9999; /* Ensure it covers everything */
+            color: white;
+            transition: opacity 0.3s ease-out; /* Smooth fade-out */
+            text-align: center;
         }
         
+        /* Style for the image on the splash screen */
+        .splash-logo-image {
+            /* We will use a fixed, prominent size */
+            width: 300px; 
+            height: 300px;
+            object-fit: contain; /* Ensures the whole image is visible */
+            margin-bottom: 20px;
+        }
+
+        /* Style for the main text on the splash screen */
+        .splash-caption {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: white;
+            padding: 0 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 5px;
+        }
+
+        #custom-splash p {
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
+        /* === END Splash Screen Styles === */
+
+        /* Main app content wrapper to handle spacing from the top */
+        #app-content {
+            padding: 20px 0; /* Add vertical padding */
+            width: 100%; /* Ensure it spans the full width */
+        }
+        
+        /* === Centering Fix: Apply margin: auto to containers with fixed max-width === */
         .container {            
             background-color: #ffffff;            
-            padding: 40px 20px; 
+            padding: 40px 20px; /* Adjusted horizontal padding */
             border-radius: 12px;            
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);            
             width: 90%;            
             max-width: 450px;
-            margin: 0 auto 30px auto; 
+            /* --- CENTERING FIX START --- */
+            margin: 0 auto 30px auto; /* Centers horizontally and adds bottom margin */
+            /* --- CENTERING FIX END --- */
             text-align: center;
         }        
-        /* Logo Styling - Targeting SVG elements now */        
+        /* Logo Styling */        
         .logo-container {            
             margin-bottom: 25px;        
         }        
-        .logo-container svg {            
-            width: 180px; /* Explicit width for main logo SVG */
-            height: 40px; /* Explicit height for main logo SVG */
+        .logo-container img {            
+            max-width: 180px;             
+            height: auto;            
             display: block;            
             margin: 0 auto;        
         }        
         h1 {            
-            /* 4. Optimized H1 Tag: Includes core HTS keyword */
             color: #1a1a2e;            
             font-size: 1.5em;            
             margin-bottom: 30px;        
@@ -89,7 +142,7 @@
             border-color: #007bff;            
             outline: none;        
         }        
-        button {            
+button {            
             background-color: #007bff;            
             color: white;            
             padding: 12px 25px;            
@@ -119,7 +172,7 @@
             font-weight: bold;        
         }        
         .warning-text {            
-            color: #ff4500; 
+            color: #ff4500; /* Deep Orange for warning */            
             font-weight: 600;            
             font-size: 0.95em;        
         }        
@@ -129,10 +182,11 @@
             background-color: #f8f9fa;            
             border: 1px solid #dee2e6;            
             font-size: 0.9em;            
-            margin: 0 auto 30px auto; 
+            /* Ensure it has margin at the bottom before the footer */            
+            margin: 0 auto 30px auto; /* CENTERING FIX for the box itself */
             width: 90%;            
             max-width: 450px;         
-            text-align: center;
+            text-align: center; /* FIX: Center the text content inside the box */
         }        
         .status-box h2 {            
             font-size: 1.1em;            
@@ -146,16 +200,16 @@
         }        
         /* Footer/New Logo Styling */        
         footer {            
-            margin: 40px auto 40px auto; 
+            margin: 40px auto 40px auto; /* CENTERING FIX */
             padding-top: 20px;            
             border-top: 1px solid #ccc;            
             width: 90%;            
             max-width: 450px;            
             text-align: center;        
         }        
-        .storcke-logo svg {            
-            width: 150px; /* Explicit width for footer logo SVG */
-            height: 40px; /* Explicit height for footer logo SVG */
+        .storcke-logo img {            
+            max-width: 150px;            
+            height: auto;            
             opacity: 0.7;        
         }        
         .footer-text {            
@@ -163,20 +217,38 @@
             font-size: 0.8em;            
             margin-top: 10px;        
         }
+        /* Style for the main content block that starts hidden */
+        .hidden {
+            display: none !important;
+        }    
     </style>
+
 </head>
 <body>
-<div id="app-content">
+<!-- === Custom Splash Screen (4-Second Delay) === -->
+<div id="custom-splash">
+    <!-- Image source is correctly set to daughter_photo.png -->
+    <img 
+        id="daughter-photo" 
+        src="daughter_photo.png" 
+        alt="Daughter's Photo" 
+        class="splash-logo-image"
+        onerror="this.onerror=null; this.src='https://placehold.co/300x300/ffffff/ff0000?text=Logo+Missing'"
+    >
+    <p class="splash-caption">Welcome to the Storcke HTS Tool</p>
+    <p>Loading Human Time System Converter...</p>
+</div>
+<!-- === END Splash Screen === -->
+
+<!-- Wrap all application content in this div and hide it initially -->
+<div id="app-content" class="hidden">
+    <!-- USER'S APPLICATION UI/HTML CONTENT -->
     <div class="container">    
         <div class="logo-container">        
-            <!-- INLINE SVG: Minimal and guaranteed to load -->
-            <svg width="180" height="40" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="STORCKE HTS Logo">
-              <rect width="180" height="40" fill="#007bff"/>
-              <text x="90" y="24" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="bold">STORCKE HTS</text>
-            </svg>
+            <!-- Reverted to original file name as requested -->        
+            <img src="1000035855.png" alt="Human Time System Logo">     
         </div>
-        <!-- 4. Optimized H1 Tag: Primary keyword focus -->
-        <h1>Official Human Time System (HTS) Converter</h1>
+        <h1>Gregorian Year to HTS Converter</h1>
         <label for="gregorianYear">Enter Gregorian Year (AD):</label>    
         <input type="number" id="gregorianYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') convertToHTS()">
         <button onclick="convertToHTS()">Calculate HTS Year</button>
@@ -186,7 +258,7 @@
     </div>
     <!-- HTS to Gregorian Converter -->
     <div class="container">    
-        <h2>STORCKE HTS Year to Gregorian Converter</h2>        
+        <h2>HTS Year to Gregorian Converter</h2>        
         <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>    
         <input type="text" id="htsYearInput" placeholder="e.g., 1B40000" onkeyup="if(event.key === 'Enter') convertHTSToGregorian()">
         <button onclick="convertHTSToGregorian()">Calculate Gregorian Year</button>
@@ -195,7 +267,7 @@
         </div>
     </div>
     <div class="container">    
-        <h2>Calculate Temporal Difference (Duration)</h2>        
+        <h2>Calculate Year Difference (Duration)</h2>        
         <label for="startYear">Enter Start Gregorian Year:</label>    
         <input type="number" id="startYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') calculateDifference()">        
         <label for="endYear">Enter End Gregorian Year:</label>    
@@ -225,34 +297,79 @@
     </div>
     <footer>    
         <div class="storcke-logo">        
-            <!-- INLINE SVG: Minimal and guaranteed to load -->
-            <svg width="150" height="40" viewBox="0 0 150 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Storcke HTS Tool Logo">
-              <rect width="150" height="40" fill="#007bff"/>
-              <text x="75" y="24" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle">Storcke HTS Tool</text>
-            </svg>
+            <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">    
         </div>    
-        <!-- 4. Footer Text: Includes full branding for keyword density -->
-        <p class="footer-text">This Human Time System (HTS) tool is proudly powered by **Storcke Family Products**.</p>
+        <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
     </footer>
 </div>
+<!-- END Application Content -->
 
+<!-- PWA Service Worker Registration Script (Crucial for Installation) -->
+<script>
+    // Service Worker registration logic
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        // Introduce a slight delay (100ms) to ensure all environment resources are loaded, 
+        // which often resolves "URL protocol not supported" errors in sandboxed contexts.
+        setTimeout(() => {
+            // Registering sw.js at the root scope '/'
+            navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('Service Worker registered successfully with scope: ', registration.scope);
+            })
+            .catch(error => {
+                console.error('Service Worker registration failed: ', error);
+            });
+        }, 100); 
+        });
+    }
+
+    /**
+     * Shows the main application content after a delay.
+     * This function is called after all initial app logic is run.
+     */
+    function showAppContent() {
+        const splash = document.getElementById('custom-splash');
+        const content = document.getElementById('app-content');
+
+        // Start the fade-out process
+        splash.style.opacity = '0'; 
+
+        // After the fade transition is complete (300ms), hide it completely
+        setTimeout(() => {
+            splash.style.display = 'none';
+            content.classList.remove('hidden');
+        }, 300); // 300ms matches the CSS transition time
+    }
+</script>
+
+<!-- START USER'S APPLICATION LOGIC SCRIPT -->
 <script>    
     // Global variable to capture the exact time the script started (content load time)    
     const scriptLoadTime = new Date();        
 
     // --- HTS Conversion Logic (Shared) ---    
     function getHTSNotation(gregorianYear) {        
+        // --- HTS Conversion Constants ---        
         const BASE_GREGORIAN_YEAR = 2023;        
         const HTS_BASE_YEAR = 40000;        
         const EPOCH_LENGTH = 50000;        
         const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // Gregorian year equivalent of HTS Year 0 (2023 - 40000 = -37977)        
         const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;        
         const yearsSinceHTS0 = gregorianYear - HTS_YEAR_0_GREGORIAN;
+
+        // Calculate Epoch components        
         const epochIndex = Math.floor(yearsSinceHTS0 / EPOCH_LENGTH);        
         const yearWithinEpoch = yearsSinceHTS0 % EPOCH_LENGTH;                
+
+        // Calculate Supercycle and Epoch Letter        
         const supercycleNumber = Math.floor(epochIndex / ALPHABET.length) + 1;        
         const letterIndex = epochIndex % ALPHABET.length;        
         const epochLetter = ALPHABET[letterIndex];
+
+        // Format outputs        
         const HTS_Year_Formatted = String(yearWithinEpoch).padStart(5, '0');        
         const HTS_Epoch_Year = `${epochLetter}${HTS_Year_Formatted}`;        
         const HTS_Full = `${supercycleNumber}${epochLetter}${HTS_Year_Formatted}`;                
@@ -273,6 +390,8 @@
         }                
 
         const htsData = getHTSNotation(gregorianYear);
+
+        // Reverted HTML structure        
         resultDiv.innerHTML = `            
             <h3>✅ Conversion Complete</h3>            
             <p>The Gregorian Year ${htsData.gregorianYear} AD is:</p>            
@@ -290,12 +409,14 @@
         const htsInput = document.getElementById('htsYearInput').value.trim().toUpperCase();        
         const resultDiv = document.getElementById('result-hts-convert');
 
+        // Constants from HTS logic        
         const BASE_GREGORIAN_YEAR = 2023;        
         const HTS_BASE_YEAR = 40000;        
         const EPOCH_LENGTH = 50000;        
         const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";        
         const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;
 
+        // Regex to match the full notation: [Supercycle (optional)] [Epoch Letter] [5-digit Year]        
         const match = htsInput.match(/^(\d*)?([A-Z])(\d{5})$/); 
 
         if (!match) {            
@@ -307,6 +428,7 @@
         const epochLetter = match[2];        
         const yearWithinEpochStr = match[3];
 
+        // Default to Supercycle 1 if not explicitly entered or entered as blank/empty string        
         const supercycleNumber = supercycleStr === '' ? 1 : parseInt(supercycleStr);         
         const yearWithinEpoch = parseInt(yearWithinEpochStr);
 
@@ -326,10 +448,16 @@
             return;        
         }
 
+        // 1. Calculate the overall epoch index (zero-based)        
         const totalEpochs = (supercycleNumber - 1) * ALPHABET.length + letterIndex;
+
+        // 2. Calculate the total years since HTS Year 0        
         const yearsSinceHTS0 = (totalEpochs * EPOCH_LENGTH) + yearWithinEpoch;
+
+        // 3. Calculate the Gregorian Year        
         const gregorianYear = yearsSinceHTS0 + HTS_YEAR_0_GREGORIAN;
 
+        // Reverted HTML structure        
         resultDiv.innerHTML = `            
             <h3>✅ Conversion Complete</h3>            
             <p>The HTS Year **${htsInput}** is equivalent to:</p>            
@@ -356,6 +484,7 @@
 
         const difference = Math.abs(endYear - startYear);                
 
+        // Reverted HTML structure        
         resultDiv.innerHTML = `            
             <h3>✅ Duration Calculated</h3>            
             <p>The difference between **${startYear} AD** and **${endYear} AD** is:</p>            
@@ -380,6 +509,7 @@
             return;        
         }                
 
+        // --- VALIDATION: Limit resulting year to 12 billion ---        
         const MAX_GREGORIAN_LIMIT = 12000000000;         
         const futureGregorianYear = baseYear + yearsToAdd;
 
@@ -391,9 +521,11 @@
             `;            
             return;        
         }        
-        
+        // --- END VALIDATION ---                
+
         const htsData = getHTSNotation(futureGregorianYear);
 
+        // Reverted HTML structure        
         resultDiv.innerHTML = `            
             <h3>✅ Projection Calculated</h3>            
             <p>Adding **${yearsToAdd} years** to **${baseYear} AD** results in **${futureGregorianYear} AD**.</p>            
@@ -417,6 +549,7 @@
             minute: '2-digit',            
             second: '2-digit',            
             timeZoneName: 'short',            
+            // Using America/Chicago for Central Time (CT)             
             timeZone: 'America/Chicago'         
         };
 
@@ -457,7 +590,17 @@
     }
 
 
-    document.addEventListener('DOMContentLoaded', initializeApp);
+    // Run initialization logic first, then enforce the 4-second splash screen
+    document.addEventListener('DOMContentLoaded', () => {        
+        // 1. Run all calculations to prepare the content (while it's still hidden)
+        initializeApp();
+
+        // 2. Set the desired 4000ms (4 second) minimum delay
+        const MINIMUM_SPLASH_TIME = 4000; 
+        
+        // 3. Wait for the minimum time, then call the function to reveal the app
+        setTimeout(showAppContent, MINIMUM_SPLASH_TIME);
+    });
 </script>
 </body>
 </html>
