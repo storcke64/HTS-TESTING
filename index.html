@@ -158,7 +158,7 @@
             transform: scale(0.99);                
         }                
         /* Styling for Result Boxes */                
-        #result-convert, #result-difference, #result-project, #result-hts-convert {                        
+        #result-convert, #result-difference, #result-project, #result-hts-convert, #result-past {                        
             margin-top: 35px;                        
             padding: 20px;                        
             border: 1px solid #ddd;                        
@@ -172,28 +172,6 @@
             color: #ff4500; /* Deep Orange for warning */                        
             font-weight: 600;                        
             font-size: 0.95em;                
-        }                
-        /* Status Box Styling */                
-        .status-box {                        
-            padding: 15px 20px;            
-            background-color: #f8f9fa;                        
-            border: 1px solid #dee2e6;                        
-            font-size: 0.9em;                        
-            /* Ensure it has margin at the bottom before the footer */                        
-            margin: 0 auto 30px auto; /* CENTERING FIX for the box itself */            
-            width: 90%;                        
-            max-width: 450px;                     
-            text-align: center; /* FIX: Center the text content inside the box */        
-        }                
-        .status-box h2 {                        
-            font-size: 1.1em;                        
-            margin-bottom: 10px;                        
-            color: #007bff;                
-        }                
-        .status-box p {                        
-            font-weight: normal;                        
-            margin: 5px 0;                        
-            color: #6c757d;                
         }                
         /* Footer/New Logo Styling */                
         footer {                        
@@ -214,7 +192,7 @@
             font-size: 0.8em;                        
             margin-top: 10px;                
         }        
-        /* NEW STYLE: Footer link for documentation */
+        /* Footer link for documentation */
         .footer-link {
             font-size: 0.9em;
             margin-top: 15px; /* Adds space above the link */
@@ -252,7 +230,8 @@
 
 <!-- Wrap all application content in this div and hide it initially -->
 <div id="app-content" class="hidden">    
-    <!-- USER'S APPLICATION UI/HTML CONTENT -->    
+    
+    <!-- CONVERTER 1: Gregorian to HTS -->    
     <div class="container">            
         <div class="logo-container">                    
             <!-- Reverted to original file name as requested -->                    
@@ -267,7 +246,37 @@
         </div>    
     </div>    
 
-    <!-- HTS to Gregorian Converter -->    
+    <!-- NEW FEATURE: Live Time and HTS Display -->
+    <div class="container" id="live-hts-container">
+        <h2>Current Date & HTS Year (Live)</h2>
+        <div id="live-gregorian-time" style="font-size: 2.2em; color: #007bff; font-weight: 800; margin-bottom: 5px;">
+            --:--:--
+        </div>
+        <div id="live-gregorian-date" style="font-size: 1.1em; color: #666; margin-bottom: 15px;">
+            ---
+        </div>
+        <p style="font-weight: 600; color: #333;">Current HTS Year:</p>
+        <div id="live-hts-year" style="font-size: 2.5em; color: #1a1a2e; font-weight: 800; margin-top: 10px;">
+            --B-----
+        </div>
+        <p style="font-size: 0.8em; color: #999; margin-top: 15px;">Updates every second based on your local system time.</p>
+    </div>
+    <!-- END LIVE FEATURE -->
+
+    <!-- NEW FEATURE: Verify Past HTS Year -->
+    <div class="container">            
+        <h2>Verify Past HTS Year</h2>
+        <p>Calculate the HTS Year for a date a specified number of years before today's date.</p>
+        <label for="yearsAgo">Years Before Today's Date:</label>            
+        <input type="number" id="yearsAgo" placeholder="e.g., 6500" onkeyup="if(event.key === 'Enter') verifyPastYear()">        
+        <button onclick="verifyPastYear()">Calculate Past HTS Year</button>
+        <div id="result-past">                    
+            Enter the number of years ago to see the past HTS Year.            
+        </div>    
+    </div>
+    <!-- END PAST YEAR FEATURE -->
+
+    <!-- CONVERTER 2: HTS to Gregorian Converter -->    
     <div class="container">            
         <h2>HTS Year to Gregorian Converter</h2>                
         <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>            
@@ -278,6 +287,7 @@
         </div>    
     </div>    
     
+    <!-- CALCULATOR 1: Difference Calculator -->
     <div class="container">            
         <h2>Calculate Year Difference (Duration)</h2>
                 <label for="startYear">Enter Start Gregorian Year:</label>            
@@ -290,6 +300,7 @@
         </div>    
     </div>    
 
+    <!-- CALCULATOR 2: Future Year Projector -->
     <div class="container">            
         <h2>Project Future HTS Year</h2>
                 <label for="baseYear">Start Gregorian Year:</label>            
@@ -302,14 +313,8 @@
         </div>    
     </div>    
 
-    <!-- Last Updated Status Display -->    
-    <div class="status-box">            
-        <h2>Application Status</h2>
-        <div id="last-updated">                    
-            Calculating load time...            
-        </div>    
-    </div>    
-
+    <!-- Application Status section removed as requested. -->
+    
     <footer>            
         <div class="storcke-logo">                    
             <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">            
@@ -357,15 +362,15 @@
         // After the fade transition is complete (300ms), hide it completely        
         setTimeout(() => {            
             splash.style.display = 'none';            
-            content.classList.remove('hidden');        
+            content.classList.remove('hidden');
+            // Start the live time update loop after the splash screen is gone
+            startLiveTimeUpdate();        
         }, 300); // 300ms matches the CSS transition time    
     }
 </script>
 
 <!-- START USER'S APPLICATION LOGIC SCRIPT -->
 <script>        
-    // Global variable to capture the exact time the script started (content load time)        
-    const scriptLoadTime = new Date();        
     
     // --- HTS Conversion Logic (Shared) ---        
     function getHTSNotation(gregorianYear) {                
@@ -397,7 +402,7 @@
     }        
     // ------------------------------------
 
-    // --- FUNCTION 1: Gregorian to HTS Conversion ---        
+    // --- FUNCTION 1: Gregorian to HTS Conversion (Manual Input) ---        
     function convertToHTS() {                
         const yearInput = document.getElementById('gregorianYear').value;                
         const resultDiv = document.getElementById('result-convert');                
@@ -556,29 +561,73 @@
         `;        
     }        
     
-    // --- FUNCTION 5: Display Load Time (Adjusted for Central Time) ---        
-    function displayLoadTime() {                
-        const lastUpdatedElement = document.getElementById('last-updated');
+    // --- FUNCTION 5: Verify Past Year (New Feature) ---
+    function verifyPastYear() {
+        const yearsAgoInput = document.getElementById('yearsAgo').value;
+        const resultDiv = document.getElementById('result-past');
+        const yearsAgo = parseInt(yearsAgoInput);
 
-        const updatedOptions = {                        
-            year: 'numeric',                        
-            month: 'short',                        
-            day: '2-digit',                        
-            hour: '2-digit',                        
-            minute: '2-digit',                        
-            second: '2-digit',                        
-            timeZoneName: 'short',                        
-            // Using America/Chicago for Central Time (CT)                         
-            timeZone: 'America/Chicago'                 
+        if (isNaN(yearsAgo) || yearsAgo < 0) {
+            resultDiv.innerHTML = "❌ Please enter a valid, non-negative number of years ago.";
+            return;
+        }
+
+        const currentYear = new Date().getFullYear();
+        const pastGregorianYear = currentYear - yearsAgo;
+
+        if (pastGregorianYear < -40000) {
+            resultDiv.innerHTML = "⚠️ The calculated past year falls outside the current Human Time System epoch range (before -37,977 AD).";
+            return;
+        }
+
+        const htsData = getHTSNotation(pastGregorianYear);
+
+        resultDiv.innerHTML = `                        
+            <h3>✅ Past Year Verified</h3>                        
+            <p>**${yearsAgo} years ago** was the Gregorian Year **${pastGregorianYear} AD**.</p>                        
+            <p>The HTS Year for that date was:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${htsData.HTS_Epoch_Year}                        
+            </p>                        
+            <p>Full HTS Notation: **${htsData.HTS_Full}**</p>                
+        `;
+    }
+
+    // --- FUNCTION 6: Live Time Update ---
+    function updateLiveTime() {
+        const now = new Date();
+        
+        // Time Formatting (CT for consistency, though local time is fine for "live")
+        const timeOptions = {
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true, 
+            timeZoneName: 'short'
         };
+        const dateOptions = {
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+        };
+        
+        const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+        const dateStr = now.toLocaleDateString('en-US', dateOptions);
 
-        const loadTimeStr = scriptLoadTime.toLocaleString('en-US', updatedOptions);
+        // HTS Calculation using current year
+        const currentYear = now.getFullYear();
+        const htsData = getHTSNotation(currentYear);
 
-        lastUpdatedElement.innerHTML = `                        
-            <p>The content was last loaded/updated at:</p>                        
-            <p style="font-size:1.1em; color: #1a1a2e;"><strong>${loadTimeStr}</strong></p>                        
-            <p style="margin-top: 10px; font-size:0.8em;">(Time is Central Time - CT)</p>                
-        `;        
+        // Update the DOM elements
+        document.getElementById('live-gregorian-time').textContent = timeStr;
+        document.getElementById('live-gregorian-date').textContent = dateStr;
+        document.getElementById('live-hts-year').textContent = htsData.HTS_Full;
+    }
+
+    // Function to start the live update loop
+    function startLiveTimeUpdate() {
+        updateLiveTime(); // Initial call
+        setInterval(updateLiveTime, 1000); // Update every second
     }
 
     // Set the default year and run all conversions on load (The main app initialization function)        
@@ -603,9 +652,10 @@
         document.getElementById('baseYear').value = currentYear;                
         document.getElementById('yearsToAdd').value = 100;                
         projectFutureYear();
-
-        // 5. Display the load time in CT                
-        displayLoadTime();    
+        
+        // 5. Set default for Past Year Verification tool
+        document.getElementById('yearsAgo').value = 6500;
+        verifyPastYear();
     }
 
     // Run initialization logic first, then enforce the 4-second splash screen    
