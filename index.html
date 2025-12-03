@@ -21,7 +21,6 @@
     <style>        
         /* * FIX FOR MOBILE JIGGLE: 
          * 1. Set box-sizing to border-box for predictable widths.
-         * 2. Set margin: 0 and explicitly hide horizontal overflow on the body. 
          */
         * {
             box-sizing: border-box;
@@ -35,9 +34,6 @@
             /* Reduced padding to rely on inner container margins for centering */
             padding: 0;            
             background-color: #f0f2f5;        
-            
-            /* --- JIGGLE FIX REVERTED --- */
-            /* Removed margin: 0, overflow-x: hidden, and width: 100% */
         }        
 
         /* === Custom Splash Screen Styles (Optimized for Transparent PNG) === */
@@ -186,9 +182,10 @@ button {
             border: 1px solid #dee2e6;            
             font-size: 0.9em;            
             /* Ensure it has margin at the bottom before the footer */            
-            margin: 0 auto 30px auto; /* CENTERING FIX */
+            margin: 0 auto 30px auto; /* CENTERING FIX for the box itself */
             width: 90%;            
             max-width: 450px;         
+            text-align: center; /* FIX: Center the text content inside the box */
         }        
         .status-box h2 {            
             font-size: 1.1em;            
