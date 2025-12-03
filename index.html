@@ -11,8 +11,10 @@
 
     <!-- PWA Meta Tags (Theme, Apple) -->    
     <meta name="theme-color" content="#4f46e5">    
-    <!-- Using a common icon name for simplicity, assume a 512x512 PNG exists -->    
-    <link rel="apple-touch-icon" href="icon-512.png">     
+    
+    <!-- PWA ICON FIX: Explicitly setting the daughter's photo as the main PWA icon -->
+    <!-- This ensures the HTS logo and the footer logo are NOT used for installation. -->
+    <link rel="apple-touch-icon" href="daughter_photo.png">     
     <meta name="apple-mobile-web-app-capable" content="yes">    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">    
     <meta name="apple-mobile-web-app-title" content="HTS Tool">    
@@ -234,7 +236,7 @@
     <!-- CONVERTER 1: Gregorian to HTS -->    
     <div class="container">            
         <div class="logo-container">                    
-            <!-- Reverted to original file name as requested -->                    
+            <!-- Main HTS Logo - Not to be used as PWA icon -->                    
             <img src="1000035855.png" alt="Human Time System Logo">             
         </div>        
         <h1>Gregorian Year to HTS Converter</h1>
@@ -317,6 +319,7 @@
     
     <footer>            
         <div class="storcke-logo">                    
+            <!-- Footer Logo - Not to be used as PWA icon -->
             <img src="storcke_hts_logo.png" alt="Storcke HTS Tool">            
         </div>            
         <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
@@ -344,8 +347,7 @@
                 console.log('Service Worker registered successfully with scope: ', registration.scope);            
             })            
             .catch(error => {                
-                console.error('Service Worker registration failed: ', error);            
-            });        
+                console.error('Service Worker registration failed: ', error);            });        
         }, 100);         
         });    
     }
@@ -384,6 +386,11 @@
         const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;                
         const yearsSinceHTS0 = gregorianYear - HTS_YEAR_0_GREGORIAN;
 
+        // Check for minimum HTS year
+        if (yearsSinceHTS0 < 0) {
+            return { error: true, message: "The year is below the HTS minimum (-37,977 AD)." };
+        }
+
         // Calculate Epoch components                
         const epochIndex = Math.floor(yearsSinceHTS0 / EPOCH_LENGTH);                
         const yearWithinEpoch = yearsSinceHTS0 % EPOCH_LENGTH;                
@@ -408,12 +415,17 @@
         const resultDiv = document.getElementById('result-convert');                
         const gregorianYear = parseInt(yearInput);
 
-        if (isNaN(gregorianYear) || gregorianYear < -40000) {                        
-            resultDiv.innerHTML = "❌ Please enter a valid Gregorian year (e.g., 2025). The system starts 40,000 years before 2023.";                        
+        if (isNaN(gregorianYear)) {                        
+            resultDiv.innerHTML = "❌ Please enter a valid Gregorian year (e.g., 2025).";                        
             return;                
         }                
         
         const htsData = getHTSNotation(gregorianYear);
+
+        if (htsData.error) {
+            resultDiv.innerHTML = `❌ ${htsData.message}`;
+            return;
+        }
 
         // Reverted HTML structure                
         resultDiv.innerHTML = `                        
@@ -549,6 +561,12 @@
         
         const htsData = getHTSNotation(futureGregorianYear);
 
+        // Check for HTS error on calculation
+        if (htsData.error) {
+            resultDiv.innerHTML = `❌ ${htsData.message}`;
+            return;
+        }
+
         // Reverted HTML structure                
         resultDiv.innerHTML = `                        
             <h3>✅ Projection Calculated</h3>                        
@@ -575,21 +593,25 @@
         const currentYear = new Date().getFullYear();
         const pastGregorianYear = currentYear - yearsAgo;
 
-        if (pastGregorianYear < -40000) {
-            resultDiv.innerHTML = "⚠️ The calculated past year falls outside the current Human Time System epoch range (before -37,977 AD).";
+        const htsData = getHTSNotation(pastGregorianYear);
+
+        if (htsData.error) {
+            resultDiv.innerHTML = `⚠️ The calculated past year falls outside the current Human Time System epoch range (before -37,977 AD).`;
             return;
         }
-
-        const htsData = getHTSNotation(pastGregorianYear);
+        
+        // If no error, proceed with display
+        const htsEpochYear = htsData.HTS_Epoch_Year;
+        const htsFull = htsData.HTS_Full;
 
         resultDiv.innerHTML = `                        
             <h3>✅ Past Year Verified</h3>                        
             <p>**${yearsAgo} years ago** was the Gregorian Year **${pastGregorianYear} AD**.</p>                        
             <p>The HTS Year for that date was:</p>                        
             <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
-                ${htsData.HTS_Epoch_Year}                        
+                ${htsEpochYear}                        
             </p>                        
-            <p>Full HTS Notation: **${htsData.HTS_Full}**</p>                
+            <p>Full HTS Notation: **${htsFull}**</p>                
         `;
     }
 
@@ -603,7 +625,7 @@
             minute: '2-digit', 
             second: '2-digit', 
             hour12: true, 
-            timeZoneName: 'short'
+            // timeZoneName: 'short' // Removed for broader compatibility
         };
         const dateOptions = {
             year: 'numeric', 
@@ -621,7 +643,7 @@
         // Update the DOM elements
         document.getElementById('live-gregorian-time').textContent = timeStr;
         document.getElementById('live-gregorian-date').textContent = dateStr;
-        document.getElementById('live-hts-year').textContent = htsData.HTS_Full;
+        document.getElementById('live-hts-year').textContent = htsData.HTS_Full || '--B-----';
     }
 
     // Function to start the live update loop
@@ -640,7 +662,7 @@
 
         // 2. Set default for HTS to Gregorian tool                
         const currentHTS = getHTSNotation(currentYear);                
-        document.getElementById('htsYearInput').value = currentHTS.HTS_Full;                
+        document.getElementById('htsYearInput').value = currentHTS.HTS_Full || '';                
         convertHTSToGregorian();
 
         // 3. Set defaults for Difference tool                
