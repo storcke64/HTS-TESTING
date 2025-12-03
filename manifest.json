@@ -1,60 +1,29 @@
 {
-    "app-id": "com.storcke.HTSConverter",
-    "runtime": "org.freedesktop.Platform",
-    "runtime-version": "23.08",
-    "sdk": "org.freedesktop.Sdk",
-    "command": "hts-converter",
-    "finish-args": [
-        /* Access to X11 (graphical display) */
-        "--socket=x11",
-        /* Access to Wayland (modern display server) */
-        "--socket=wayland",
-        /* Access to PulseAudio (sound, though not used here) */
-        "--socket=pulseaudio",
-        /* Needed for the webkit launcher to display the content */
-        "--share=ipc"
-    ],
-    "modules": [
+    "name": "HTS Converters",
+    "short_name": "HTS Tool",
+    "description": "A converter and calculator for the Human Time System (HTS).",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#007bff",
+    "icons": [
         {
-            /* This module bundles a small C utility that wraps webkitgtk,
-               allowing it to launch your HTML file as a native app. */
-            "name": "webkit-wrapper",
-            "buildsystem": "simple",
-            "build-commands": [
-                "install -Dm755 hts-converter /app/bin/hts-converter"
-            ],
-            "sources": [
-                {
-                    "type": "inline",
-                    "dest-filename": "hts-converter",
-                    "contents": "#!/bin/bash\nexec /usr/bin/webkit-web-extension-process $1 /app/share/hts-converter/index.html"
-                }
-            ]
+            "src": "1000035855.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
-            /* This module copies your local files (HTML, images, CSS) into the Flatpak package. */
-            "name": "app-files",
-            "buildsystem": "simple",
-            "sources": [
-                {
-                    "type": "file",
-                    "path": "files/index.html"
-                },
-                {
-                    "type": "file",
-                    "path": "files/1000035855.png"
-                },
-                {
-                    "type": "file",
-                    "path": "files/storcke_hts_logo.png"
-                }
-            ],
-            /* Install the files into the designated share directory */
-            "install-commands": [
-                "install -Dm644 index.html /app/share/hts-converter/index.html",
-                "install -Dm644 1000035855.png /app/share/hts-converter/1000035855.png",
-                "install -Dm644 storcke_hts_logo.png /app/share/hts-converter/storcke_hts_logo.png"
-            ]
+            "src": "1000035855.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "1000035855.png",
+            "sizes": "384x384",
+            "type": "image/png"
         }
-    ]
+    ],
+    "splash_pages": null
 }
