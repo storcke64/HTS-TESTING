@@ -36,11 +36,8 @@
             padding: 0;            
             background-color: #f0f2f5;        
             
-            /* --- JIGGLE FIX START --- */
-            margin: 0; 
-            overflow-x: hidden;
-            width: 100%; /* Ensure body spans full width */
-            /* --- JIGGLE FIX END --- */
+            /* --- JIGGLE FIX REVERTED --- */
+            /* Removed margin: 0, overflow-x: hidden, and width: 100% */
         }        
 
         /* === Custom Splash Screen Styles (Optimized for Transparent PNG) === */
@@ -48,7 +45,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
+            /* REVERTED TO 100vw (This was the source of the potential jiggle) */
+            width: 100vw; 
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -68,8 +66,6 @@
             height: 300px;
             object-fit: contain; /* Ensures the whole image is visible */
             margin-bottom: 20px;
-            /* No border-radius or background is needed here. 
-               The image will sit directly on the blue background. */
         }
 
         /* Style for the main text on the splash screen */
@@ -149,7 +145,7 @@
             border-color: #007bff;            
             outline: none;        
         }        
-        button {            
+button {            
             background-color: #007bff;            
             color: white;            
             padding: 12px 25px;            
@@ -233,9 +229,7 @@
 <body>
 <!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">
-    <!-- 
-        *** IMAGE FILEPATH UPDATED *** Changed source from .jpg to .png to match the new circular image with transparent background.
-    -->
+    <!-- Image source is correctly set to daughter_photo.png -->
     <img 
         id="daughter-photo" 
         src="daughter_photo.png" 
