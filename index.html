@@ -51,15 +51,17 @@
             transition: opacity 0.3s ease-out;            
             text-align: center;        
         }                
-        /* Style for the image on the splash screen */        
+        /* Style for the image on the splash screen - NOW CIRCULAR */        
         .splash-logo-image {            
             width: 250px;             
             height: 250px;
-            object-fit: contain;            
+            /* Use 'cover' to ensure the photo fills the circle without distortion */
+            object-fit: cover; 
             margin-bottom: 20px;
-            border-radius: 12px; /* Add some rounded corners */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            background-color: white; /* Ensure visibility if image is transparent */        
+            /* CRITICAL FIX: border-radius 50% makes it a circle */
+            border-radius: 50%; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            border: 5px solid white; /* Add a nice white border for contrast */
         }
 
         /* Style for the main text on the splash screen */        
@@ -223,7 +225,7 @@
 </head>
 <body>
 
-<!-- === Custom Splash Screen (4-Second Delay) - NOW WITH DAUGHTER'S IMAGE === -->
+<!-- === Custom Splash Screen (4-Second Delay) - NOW WITH CIRCULAR IMAGE FIX === -->
 <div id="custom-splash">    
     <!-- MANDATORY: Daughter's Photo set to the user-provided filename -->
     <img         
