@@ -294,4 +294,445 @@
         <p>Calculate the HTS Year for a date a specified number of years before today's date.</p>
         <label for="yearsAgo">Years Before Today's Date:</label>            
         <input type="number" id="yearsAgo" placeholder="e.g., 6500" onkeyup="if(event.key === 'Enter') verifyPastYear()">        
-        <button onclick="verifyPastYear()">Calculate Past HTS
+        <button onclick="verifyPastYear()">Calculate Past HTS Year</button>
+        <div id="result-past">                    
+            Enter the number of years ago to see the past HTS Year.            
+        </div>    
+    </div>
+    <!-- END PAST YEAR FEATURE -->
+
+    <!-- CONVERTER 2: HTS to Gregorian Converter -->    
+    <div class="container">            
+        <h2>HTS Year to Gregorian Converter</h2>                
+        <label for="htsYearInput">Enter HTS Year (e.g., 1B40000):</label>            
+        <input type="text" id="htsYearInput" placeholder="e.g., 1B40000" onkeyup="if(event.key === 'Enter') convertHTSToGregorian()">        
+        <button onclick="convertHTSToGregorian()">Calculate Gregorian Year</button>
+        <div id="result-hts-convert">                    
+            Enter an HTS year to see the Gregorian equivalent.            
+        </div>    
+    </div>    
+    
+    <!-- CALCULATOR 1: Difference Calculator -->
+    <div class="container">            
+        <h2>Calculate Year Difference (Duration)</h2>
+                <label for="startYear">Enter Start Gregorian Year:</label>            
+        <input type="number" id="startYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') calculateDifference()">                
+        <label for="endYear">Enter End Gregorian Year:</label>            
+        <input type="number" id="endYear" placeholder="e.g., 2050" onkeyup="if(event.key === 'Enter') calculateDifference()">        
+        <button onclick="calculateDifference()">Calculate Duration</button>
+        <div id="result-difference">                    
+            Enter two years to see the duration between them.            
+        </div>    
+    </div>    
+
+    <!-- CALCULATOR 2: Future Year Projector -->
+    <div class="container">            
+        <h2>Project Future HTS Year</h2>
+                <label for="baseYear">Start Gregorian Year:</label>            
+        <input type="number" id="baseYear" placeholder="e.g., 2025" onkeyup="if(event.key === 'Enter') projectFutureYear()">                
+        <label for="yearsToAdd">Number of Years to Add:</label>            
+        <input type="number" id="yearsToAdd" placeholder="e.g., 50" onkeyup="if(event.key === 'Enter') projectFutureYear()">        
+        <button onclick="projectFutureYear()">Calculate Future HTS Year</button>
+        <div id="result-project">                    
+            Enter the number of years to add to see the future HTS Year.            
+        </div>    
+    </div>    
+
+    
+    <footer>            
+        <div class="storcke-logo">                    
+            <!-- Footer Logo - Not to be used as PWA icon -->
+            <img 
+                src="storcke_hts_logo.png" 
+                alt="Storcke HTS Tool"
+                onerror="handleLogoError(this, 'storcke_hts_logo.png');" 
+            >            
+        </div>            
+        <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
+        
+        <!-- LINK TO REDDIT DOCUMENTATION -->
+        <a href="https://www.reddit.com/user/Whole_Excitement_928/?share_id=-ue0TdPIXtWvVrS4tb-Hg&utm_content=1&utm_medium=android_app&utm_name=androidcss&utm_source=share&utm_term=1/" 
+           target="_blank" 
+           class="footer-link">
+            Learn about the HTS System on Reddit
+        </a>
+    </footer>
+</div><!-- END Application Content -->
+
+<!-- PWA Service Worker Registration Script (Crucial for Installation) -->
+<script>    
+    // Function to handle the logo loading failure and provide feedback
+    function handleLogoError(imgElement, filename) {
+        console.error("CRITICAL ERROR: Logo failed to load:", filename);
+        imgElement.onerror = null; // Prevent infinite loop
+        
+        // Use a generic placeholder image for the missing logo
+        imgElement.src = `https://placehold.co/180x180/007bff/ffffff?text=${encodeURIComponent(filename)}`;
+        
+        // Create or find the status div in the main content container
+        let statusDiv = document.getElementById('logo-status');
+        if (!statusDiv) {
+            statusDiv = document.createElement('div');
+            statusDiv.id = 'logo-status';
+            // Insert the status div right after the failing image element
+            imgElement.parentNode.insertBefore(statusDiv, imgElement.nextSibling);
+        }
+
+        statusDiv.innerHTML = `⚠️ **ERROR:** The image (**${filename}**) was not found. Please ensure the file is uploaded correctly.`;
+    }
+
+    // Service Worker registration logic    
+    if ('serviceWorker' in navigator) {        
+        window.addEventListener('load', () => {        
+        console.log('SW Registration: Window loaded, attempting registration in 100ms...');
+        // Introduce a slight delay (100ms) to ensure all environment resources are loaded,         
+        setTimeout(() => {            
+            // Registering the Service Worker using the relative path (./sw.js)
+            navigator.serviceWorker.register('./sw.js')            
+            .then(registration => {                
+                console.log('SW Registration: Success with scope: ', registration.scope);            
+            })            
+            .catch(error => {                
+                console.error('SW Registration: FAILED. This could cause installation issues.', error);            
+            });        
+        }, 100);         
+        });    
+    }
+
+    /** * Hides the splash screen, runs initialization logic, and shows the main application content.
+     * This function is now the only entry point for app initialization after the 4-second delay.
+     */    
+    function showAppContent() {        
+        console.log('ShowAppContent: Starting sequence to hide splash.');
+        
+        // 1. RUN THE APPLICATION LOGIC FIRST (MOVED FROM DOMContentLoaded)
+        initializeApp();
+        
+        const splash = document.getElementById('custom-splash');        
+        const content = document.getElementById('app-content');
+
+        // 2. Hide the splash screen element
+        splash.style.opacity = '0'; 
+        
+        setTimeout(() => {            
+            splash.style.display = 'none';            
+            content.classList.remove('hidden');
+            startLiveTimeUpdate();
+            console.log('ShowAppContent: Splash hidden, content visible. You should now see the app.');
+        }, 300); // Wait for the opacity transition to finish (300ms defined in CSS)
+    }
+</script>
+
+<!-- START USER'S APPLICATION LOGIC SCRIPT -->
+<script>        
+    
+    // --- HTS Conversion Logic (Shared) ---        
+    function getHTSNotation(gregorianYear) {                
+        const BASE_GREGORIAN_YEAR = 2023;                
+        const HTS_BASE_YEAR = 40000;                
+        const EPOCH_LENGTH = 50000;                
+        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        
+        const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;                
+        const yearsSinceHTS0 = gregorianYear - HTS_YEAR_0_GREGORIAN;
+
+        if (yearsSinceHTS0 < 0) {
+            // Error case for years before the HTS starting point
+            return { error: true, message: "The year is below the HTS minimum (-37,977 AD)." };
+        }
+
+        const epochIndex = Math.floor(yearsSinceHTS0 / EPOCH_LENGTH);                
+        const yearWithinEpoch = yearsSinceHTS0 % EPOCH_LENGTH;                
+        
+        const supercycleNumber = Math.floor(epochIndex / ALPHABET.length) + 1;                
+        const letterIndex = epochIndex % ALPHABET.length;                
+        const epochLetter = ALPHABET[letterIndex];
+
+        const HTS_Year_Formatted = String(yearWithinEpoch).padStart(5, '0');                
+        const HTS_Epoch_Year = `${epochLetter}${HTS_Year_Formatted}`;                
+        const HTS_Full = `${supercycleNumber}${epochLetter}${HTS_Year_Formatted}`;                
+        
+        return { HTS_Epoch_Year, HTS_Full, gregorianYear };        
+    }        
+    // ------------------------------------
+
+    // --- FUNCTION 1: Gregorian to HTS Conversion (Manual Input) ---        
+    function convertToHTS() {                
+        const yearInput = document.getElementById('gregorianYear').value;                
+        const resultDiv = document.getElementById('result-convert');                
+        const gregorianYear = parseInt(yearInput);
+
+        if (isNaN(gregorianYear)) {                        
+            resultDiv.innerHTML = "❌ Please enter a valid Gregorian year (e.g., 2025).";                        
+            return;                
+        }                
+        
+        const htsData = getHTSNotation(gregorianYear);
+
+        if (htsData.error) {
+            resultDiv.innerHTML = `❌ ${htsData.message}`;
+            return;
+        }
+
+        resultDiv.innerHTML = `                        
+            <h3>✅ Conversion Complete</h3>                        
+            <p>The Gregorian Year ${htsData.gregorianYear} AD is:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${htsData.HTS_Epoch_Year}                        
+            </p>                        
+            <p>Full HTS Notation (Supercycle/Epoch/Year):</p>                        
+            <p style="font-size: 1.5em; color: #1a1a2e; margin: 5px 0;">                                
+                **${htsData.HTS_Full}** </p>                
+        `;        
+    }
+
+    // --- FUNCTION 2: HTS to Gregorian Conversion ---        
+    function convertHTSToGregorian() {                
+        const htsInput = document.getElementById('htsYearInput').value.trim().toUpperCase();                
+        const resultDiv = document.getElementById('result-hts-convert');
+
+        const BASE_GREGORIAN_YEAR = 2023;                
+        const HTS_BASE_YEAR = 40000;                
+        const EPOCH_LENGTH = 50000;                
+        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";                
+        const HTS_YEAR_0_GREGORIAN = BASE_GREGORIAN_YEAR - HTS_BASE_YEAR;
+
+        // Regex to match Supercycle (optional, number), Epoch Letter (A-Z), and 5-digit Year (00000-49999)
+        const match = htsInput.match(/^(\d*)?([A-Z])(\d{5})$/); 
+        
+        if (!match) {                        
+            resultDiv.innerHTML = "❌ Invalid HTS format. Please use the full notation. (e.g., **1B40000** - Supercycle, Epoch Letter, 5-digit Year).";                        
+            return;                
+        }
+
+        const supercycleStr = match[1];                
+        const epochLetter = match[2];                
+        const yearWithinEpochStr = match[3];
+
+        // If Supercycle is omitted (e.g., B40000), default to 1
+        const supercycleNumber = supercycleStr === '' ? 1 : parseInt(supercycleStr);                 
+        const yearWithinEpoch = parseInt(yearWithinEpochStr);
+
+        if (yearWithinEpoch >= EPOCH_LENGTH) {                         
+            resultDiv.innerHTML = `❌ Invalid year. Year within epoch must be less than ${EPOCH_LENGTH}.`;                        
+            return;                
+        }                
+        if (isNaN(supercycleNumber) || supercycleNumber <= 0) {                         
+            resultDiv.innerHTML = "❌ Invalid Supercycle. Must be a positive integer.";                         
+            return;                
+        }
+
+        const letterIndex = ALPHABET.indexOf(epochLetter);                
+        
+        if (letterIndex === -1) {                        
+            resultDiv.innerHTML = "❌ Invalid Epoch Letter. Must be A-Z.";                        
+            return;                
+        }
+
+        const totalEpochs = (supercycleNumber - 1) * ALPHABET.length + letterIndex;
+
+        const yearsSinceHTS0 = (totalEpochs * EPOCH_LENGTH) + yearWithinEpoch;
+
+        const gregorianYear = yearsSinceHTS0 + HTS_YEAR_0_GREGORIAN;
+
+        resultDiv.innerHTML = `                        
+            <h3>✅ Conversion Complete</h3>                        
+            <p>The HTS Year **${htsInput}** is equivalent to:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${gregorianYear} AD                        
+            </p>                        
+            <p>This corresponds to Supercycle **${supercycleNumber}**</p>                
+        `;        
+    }        
+    
+    // --- FUNCTION 3: Difference Calculator ---        
+    function calculateDifference() {                
+        const startYearInput = document.getElementById('startYear').value;                
+        const endYearInput = document.getElementById('endYear').value;                
+        const resultDiv = document.getElementById('result-difference');
+
+        const startYear = parseInt(startYearInput);                
+        const endYear = parseInt(endYearInput);
+
+        if (isNaN(startYear) || isNaN(endYear)) {                        
+            resultDiv.innerHTML = "❌ Please enter valid numerical years in both fields.";                        
+            return;                
+        }                
+        
+        const difference = Math.abs(endYear - startYear);                
+        
+        resultDiv.innerHTML = `                        
+            <h3>✅ Duration Calculated</h3>                        
+            <p>The difference between **${startYear} AD** and **${endYear} AD** is:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${difference} Years                        
+            </p>                        
+            <p>This is equivalent to a duration of **${difference} HTS Years.**</p>                
+        `;        
+    }
+
+    // --- FUNCTION 4: Future Year Projector ---        
+    function projectFutureYear() {                
+        const baseYearInput = document.getElementById('baseYear').value;                
+        const yearsToAddInput = document.getElementById('yearsToAdd').value;                
+        const resultDiv = document.getElementById('result-project');
+
+        const baseYear = parseInt(baseYearInput);                
+        const yearsToAdd = parseInt(yearsToAddInput);
+
+        if (isNaN(baseYear) || isNaN(yearsToAdd) || yearsToAdd < 0) {                        
+            resultDiv.innerHTML = "❌ Please enter valid, non-negative numbers for the start year and years to add.";                        
+            return;                
+        }                
+        
+        const MAX_GREGORIAN_LIMIT = 12000000000;                 
+        const futureGregorianYear = baseYear + yearsToAdd;
+
+        if (futureGregorianYear > MAX_GREGORIAN_LIMIT) {                        
+            resultDiv.innerHTML = `                                
+                <p class="warning-text">⚠️ **Input Limit Exceeded**</p>                                
+                <p class="warning-text">While we fully expect the Earth to survive for greater than 13 billion years, we limit that input so that years displayed may not exceed **12 billion**.</p>                                
+                <p>Please enter fewer years to add.</p>                        
+            `;                        
+            return;                
+        }                
+        
+        const htsData = getHTSNotation(futureGregorianYear);
+
+        if (htsData.error) {
+            resultDiv.innerHTML = `❌ ${htsData.message}`;
+            return;
+        }
+
+        resultDiv.innerHTML = `                        
+            <h3>✅ Projection Calculated</h3>                        
+            <p>Adding **${yearsToAdd} years** to **${baseYear} AD** results in **${futureGregorianYear} AD**.</p>                        
+            <p>The HTS Year will be:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${htsData.HTS_Epoch_Year}                        
+            </p>                        
+            <p>Full HTS Notation: **${htsData.HTS_Full}**</p>                
+        `;        
+    }        
+    
+    // --- FUNCTION 5: Verify Past Year (New Feature) ---
+    function verifyPastYear() {
+        const yearsAgoInput = document.getElementById('yearsAgo').value;
+        const resultDiv = document.getElementById('result-past');
+        const yearsAgo = parseInt(yearsAgoInput);
+
+        if (isNaN(yearsAgo) || yearsAgo < 0) {
+            resultDiv.innerHTML = "❌ Please enter a valid, non-negative number of years ago.";
+            return;
+        }
+
+        const currentYear = new Date().getFullYear();
+        const pastGregorianYear = currentYear - yearsAgo;
+
+        const htsData = getHTSNotation(pastGregorianYear);
+
+        if (htsData.error) {
+            resultDiv.innerHTML = `⚠️ The calculated past year falls outside the current Human Time System epoch range (before -37,977 AD).`;
+            return;
+        }
+        
+        const htsEpochYear = htsData.HTS_Epoch_Year;
+        const htsFull = htsData.HTS_Full;
+
+        resultDiv.innerHTML = `                        
+            <h3>✅ Past Year Verified</h3>                        
+            <p>**${yearsAgo} years ago** was the Gregorian Year **${pastGregorianYear} AD**.</p>                        
+            <p>The HTS Year for that date was:</p>                        
+            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
+                ${htsEpochYear}                        
+            </p>                        
+            <p>Full HTS Notation: **${htsFull}**</p>                
+        `;
+    }
+
+    // --- FUNCTION 6: Live Time Update ---
+    function updateLiveTime() {
+        const now = new Date();
+        
+        const timeOptions = {
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true, 
+        };
+        const dateOptions = {
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+        };
+        
+        // Format time and date strings
+        const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+        const dateStr = now.toLocaleDateString('en-US', dateOptions);
+
+        // Calculate HTS Year for the current Gregorian year
+        const currentYear = now.getFullYear();
+        const htsData = getHTSNotation(currentYear);
+
+        // Update display elements
+        document.getElementById('live-gregorian-time').textContent = timeStr;
+        document.getElementById('live-gregorian-date').textContent = dateStr;
+        // Use HTS_Full notation for the live display
+        document.getElementById('live-hts-year').textContent = htsData.HTS_Full || '--B-----';
+    }
+
+    // Function to start the live update loop
+    function startLiveTimeUpdate() {
+        updateLiveTime();
+        setInterval(updateLiveTime, 1000); // Update every second
+    }
+
+    // Set the default year and run all conversions on load (The main app initialization function)        
+    function initializeApp() {        
+        console.log('InitializeApp: Starting default calculations...');
+        // The core logic of the app runs here.
+        try {
+            const currentYear = new Date().getFullYear();                 
+            
+            // 1. Gregorian to HTS
+            document.getElementById('gregorianYear').value = currentYear;                
+            convertToHTS();
+
+            // 2. HTS to Gregorian (Defaulting to current HTS)
+            const currentHTS = getHTSNotation(currentYear);                
+            document.getElementById('htsYearInput').value = currentHTS.HTS_Full || '';                
+            convertHTSToGregorian();
+
+            // 3. Difference Calculator
+            document.getElementById('startYear').value = currentYear;                
+            document.getElementById('endYear').value = currentYear + 50;                 
+            calculateDifference();
+
+            // 4. Future Year Projector
+            document.getElementById('baseYear').value = currentYear;                
+            document.getElementById('yearsToAdd').value = 100;                
+            projectFutureYear();
+            
+            // 5. Past Year Verifier
+            document.getElementById('yearsAgo').value = 6500;
+            verifyPastYear();
+            
+            console.log('InitializeApp: Default calculations complete.');
+        } catch (error) {
+            // Log if anything in the initialization fails to pinpoint the issue
+            console.error('CRITICAL: Initialization failed, app may be stuck on splash.', error);
+        }
+        
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {                
+        const MINIMUM_SPLASH_TIME = 4000; // 4 seconds
+        console.log(`DOMContentLoaded: Setting timer for ${MINIMUM_SPLASH_TIME / 1000} seconds to hide splash screen and run initialization logic.`);
+        
+        // The splash screen transition and all heavy app initialization logic 
+        // are now strictly delayed until after the MINIMUM_SPLASH_TIME.
+        setTimeout(showAppContent, MINIMUM_SPLASH_TIME);    
+    });
+</script>
+</body>
+</html>
