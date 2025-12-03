@@ -7,6 +7,7 @@ const urlsToCache = [
   './storcke_hts_logo.png', // Footer Logo
   './manifest.json',
   './sw.js', // Cache the service worker itself
+  './daughter_photo.png', // MANDATORY: Daughter's Photo for Splash Screen
 ];
 
 // Installation event: Caches all essential assets
@@ -61,7 +62,10 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         // No match in cache, fetch from network
-        return fetch(event.request);
+        return fetch(event.request).catch(error => {
+            console.error('Fetch failed: Network error or file not found', event.request.url, error);
+            // In a cache-first strategy, this means the network also failed.
+        });
       })
   );
 });
