@@ -1,11 +1,10 @@
 {
-  "name": "Storcke HTS Converter",
+  "name": "Human Time System Tool",
   "short_name": "HTS Tool",
-  "description": "Human Time System Converters by Storcke Family Products.",
+  "description": "A comprehensive converter and calculator for the Human Time System (HTS) calendar.",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#007bff",
+  "background_color": "#ffffff",
   "theme_color": "#007bff",
   "icons": [
     {
@@ -17,6 +16,18 @@
       "src": "1000035855.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "1000035855.png",
+      "sizes": "1866x1866",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "storcke_hts_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
