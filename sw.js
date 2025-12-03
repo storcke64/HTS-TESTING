@@ -1,55 +1,55 @@
-const CACHE_NAME = 'hts-v1';
-// List of files to cache for offline use
+// Define a cache name with a version to ensure updates trigger a refresh
+const CACHE_NAME = 'hts-tool-cache-v3.1'; 
+
+// List of files to cache upon installation
 const urlsToCache = [
-  './', 
-  './index.html',
-  './1000035855.png', // Main Logo
-  './storcke_hts_logo.png', // Footer Logo
-  './manifest.json',
-  './sw.js', // Cache the service worker itself
-  './daughter_photo.png', // MANDATORY: Daughter's Photo for Splash Screen
+  './',
+  'index.html',
+  'manifest.json',
+  // Crucial: Cache the icon images
+  '1000035855.png',
+  'daughter_photo.png',
+  'storcke_hts_logo.png'
 ];
 
 // Installation event: Caches all essential assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Install Event: Caching App Shell');
-  // `event.waitUntil` ensures the Service Worker isn't installed until all files are cached.
+  console.log('[SW] Installing and caching assets...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        // Add all required URLs to the cache
         return cache.addAll(urlsToCache);
       })
-      .catch(error => {
-        console.error('[Service Worker] Failed to cache assets:', error);
+      .then(() => {
+          // Force the new service worker to activate immediately
+          return self.skipWaiting(); 
       })
   );
 });
 
-// Activation event: Clears out old caches to ensure users always get the latest version
+// Activation event: Cleans up old caches to ensure the latest version runs
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activate Event: Cleaning old caches');
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('[SW] Activating and cleaning old caches...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Check if the current cacheName is NOT in the whitelist (i.e., it's an old version)
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // Delete old caches
+          if (cacheName !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+        // Ensure all clients controlled by this service worker are updated
+        return self.clients.claim(); 
     })
   );
-  // Take control of non-controlled pages immediately
-  return self.clients.claim();
 });
 
-// Fetch event: Intercepts network requests and serves from cache first
+// Fetch event: Serves files from cache first, then network
 self.addEventListener('fetch', (event) => {
-  // Only serve from cache for GET requests
+  // Only handle GET requests for navigation and assets
   if (event.request.method !== 'GET') {
     return;
   }
@@ -57,14 +57,16 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return the cached response
+        // Cache hit - return the response
         if (response) {
           return response;
         }
-        // No match in cache, fetch from network
-        return fetch(event.request).catch(error => {
-            console.error('Fetch failed: Network error or file not found', event.request.url, error);
-            // In a cache-first strategy, this means the network also failed.
+        
+        // No cache hit - fetch from the network
+        return fetch(event.request).catch(() => {
+          // If network fails (offline), and the file isn't in cache,
+          // you could return an offline page here. For now, we fail silently.
+          console.error('[SW] Fetch failed for:', event.request.url);
         });
       })
   );
