@@ -61,12 +61,14 @@
             text-align: center;
         }
         
-        /* New style for the image on the splash screen */
+        /* New style for the image on the splash screen - Now Responsive and Larger */
         .splash-logo-image {
-            width: 200px; /* INCREASED DIAMETER FROM 150px to 200px */
-            height: 200px; /* INCREASED DIAMETER FROM 150px to 200px */
+            width: 60vw; /* Use 60% of viewport width for responsiveness */
+            height: 60vw; /* Keep aspect ratio */
+            max-width: 400px; /* Clamp maximum size on desktop */
+            max-height: 400px; /* Clamp maximum size on desktop */
             border-radius: 50%; /* Make it circular */
-            object-fit: cover;
+            object-fit: cover; /* Ensures the logo fills the circle, cropping the white canvas space */
             margin-bottom: 20px;
             border: 5px solid white; /* Nice white border */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
