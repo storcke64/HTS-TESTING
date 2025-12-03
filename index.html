@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <title>Human Time System (HTS) Converters</title>
 
-    <!-- PWA Setup: Link to the Manifest -->    
-    <!-- NOTE: The manifest.json file must also be present in the root directory for PWA installation to work. -->
+    <!-- PWA Setup: Link to the Manifest (CRITICAL for PWA recognition) -->    
     <link rel="manifest" href="manifest.json">
 
     <!-- PWA Meta Tags (Theme, Apple) -->    
@@ -360,7 +359,7 @@
         console.log('SW Registration: Window loaded, attempting registration in 100ms...');
         // Introduce a slight delay (100ms) to ensure all environment resources are loaded,         
         setTimeout(() => {            
-            // FIX: Changed registration path from absolute ('/sw.js') to relative ('./sw.js')
+            // Registering the Service Worker using the relative path (./sw.js)
             navigator.serviceWorker.register('./sw.js')            
             .then(registration => {                
                 console.log('SW Registration: Success with scope: ', registration.scope);            
