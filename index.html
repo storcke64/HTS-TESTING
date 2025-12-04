@@ -3,7 +3,7 @@
 <head>    
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
-    <!-- === FIX: Disable Pinch-to-Zoom on Mobile Devices === -->
+    <!-- === FIX: Disable Pinch-to-Zoom on Mobile Devices (Aggressive attempt) === -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
     <title>Human Time System (HTS) Converters</title>
 
@@ -39,7 +39,9 @@
             flex-direction: column;                        
             align-items: center;                        
             padding: 0;                        
-            background-color: #f0f2f5;                
+            background-color: #f0f2f5; 
+            /* === CRITICAL FIX: Disables pinch-to-zoom on stubborn mobile browsers === */
+            touch-action: manipulation;
         }        
         
         /* === Custom Splash Screen Styles (With Image) === */        
@@ -609,131 +611,4 @@
             <h3>✅ Projection Calculated</h3>                        
             <p>Adding **${yearsToAdd} years** to **${baseYear} AD** results in **${futureGregorianYear} AD**.</p>                        
             <p>The HTS Year will be:</p>                        
-            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
-                ${htsData.HTS_Epoch_Year}                        
-            </p>                        
-            <p>Full HTS Notation: **${htsData.HTS_Full}**</p>                
-        `;        
-    }        
-    
-    // --- FUNCTION 5: Verify Past Year (New Feature) ---
-    function verifyPastYear() {
-        const yearsAgoInput = document.getElementById('yearsAgo').value;
-        const resultDiv = document.getElementById('result-past');
-        const yearsAgo = parseInt(yearsAgoInput);
-
-        if (isNaN(yearsAgo) || yearsAgo < 0) {
-            resultDiv.innerHTML = "❌ Please enter a valid, non-negative number of years ago.";
-            return;
-        }
-
-        const currentYear = new Date().getFullYear();
-        const pastGregorianYear = currentYear - yearsAgo;
-
-        const htsData = getHTSNotation(pastGregorianYear);
-
-        if (htsData.error) {
-            resultDiv.innerHTML = `⚠️ The calculated past year falls outside the current Human Time System epoch range (before -37,977 AD).`;
-            return;
-        }
-        
-        const htsEpochYear = htsData.HTS_Epoch_Year;
-        const htsFull = htsData.HTS_Full;
-
-        resultDiv.innerHTML = `                        
-            <h3>✅ Past Year Verified</h3>                        
-            <p>**${yearsAgo} years ago** was the Gregorian Year **${pastGregorianYear} AD**.</p>                        
-            <p>The HTS Year for that date was:</p>                        
-            <p style="font-size: 2.5em; color: #007bff; margin: 10px 0;">                                
-                ${htsEpochYear}                        
-            </p>                        
-            <p>Full HTS Notation: **${htsFull}**</p>                
-        `;
-    }
-
-    // --- FUNCTION 6: Live Time Update ---
-    function updateLiveTime() {
-        const now = new Date();
-        
-        const timeOptions = {
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: true, 
-        };
-        const dateOptions = {
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric'
-        };
-        
-        // Format time and date strings
-        const timeStr = now.toLocaleTimeString('en-US', timeOptions);
-        const dateStr = now.toLocaleDateString('en-US', dateOptions);
-
-        // Calculate HTS Year for the current Gregorian year
-        const currentYear = now.getFullYear();
-        const htsData = getHTSNotation(currentYear);
-
-        // Update display elements
-        document.getElementById('live-gregorian-time').textContent = timeStr;
-        document.getElementById('live-gregorian-date').textContent = dateStr;
-        // Use HTS_Full notation for the live display
-        document.getElementById('live-hts-year').textContent = htsData.HTS_Full || '--B-----';
-    }
-
-    // Function to start the live update loop
-    function startLiveTimeUpdate() {
-        updateLiveTime();
-        setInterval(updateLiveTime, 1000); // Update every second
-    }
-
-    // Set the default year and run all conversions on load (The main app initialization function)        
-    function initializeApp() {        
-        console.log('InitializeApp: Starting default calculations...');
-        // The core logic of the app runs here.
-        try {
-            const currentYear = new Date().getFullYear();                 
-            
-            // 1. Gregorian to HTS
-            document.getElementById('gregorianYear').value = currentYear;                
-            convertToHTS();
-
-            // 2. HTS to Gregorian (Defaulting to current HTS)
-            const currentHTS = getHTSNotation(currentYear);                
-            document.getElementById('htsYearInput').value = currentHTS.HTS_Full || '';                
-            convertHTSToGregorian();
-
-            // 3. Difference Calculator
-            document.getElementById('startYear').value = currentYear;                
-            document.getElementById('endYear').value = currentYear + 50;                 
-            calculateDifference();
-
-            // 4. Future Year Projector
-            document.getElementById('baseYear').value = currentYear;                
-            document.getElementById('yearsToAdd').value = 100;                
-            projectFutureYear();
-            
-            // 5. Past Year Verifier
-            document.getElementById('yearsAgo').value = 6500;
-            verifyPastYear();
-            
-            console.log('InitializeApp: Default calculations complete.');
-        } catch (error) {
-            // Log if anything in the initialization fails to pinpoint the issue
-            console.error('CRITICAL: Initialization failed, app may be stuck on splash.', error);
-        }
-        
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {                
-        const MINIMUM_SPLASH_TIME = 4000; // 4 seconds
-        console.log(`DOMContentLoaded: Setting timer for ${MINIMUM_SPLASH_TIME / 1000} seconds to hide splash screen and run initialization logic.`);
-        
-        // The splash screen transition and all heavy app initialization logic 
-        // are now strictly delayed until after the MINIMUM_SPLASH_TIME.
-        setTimeout(showAppContent, MINIMUM_SPLASH_TIME);    
-    });
-</script>
-</body>
-</html>
+            <p style="font-size
