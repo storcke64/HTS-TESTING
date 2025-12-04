@@ -3,8 +3,7 @@
 <head>    
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
-    <!-- === FIX: Disable Pinch-to-Zoom on Mobile Devices (Aggressive attempt) === -->
-    <!-- CRITICAL: user-scalable=no, maximum-scale=1.0 are the foundation -->
+    <!-- === CRITICAL FIX: The foundation for disabling zoom === -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
     <title>Human Time System (HTS) Converters</title>
 
@@ -14,15 +13,11 @@
     <!-- PWA Meta Tags (Theme, Apple) -->    
     <meta name="theme-color" content="#4f46e5">    
     
-    <!-- === PWA ICON LINKS (CRITICAL DESKTOP FIX) === -->
-    <!-- Define standard favicon (32x32) -->
+    <!-- === PWA ICON LINKS === -->
     <link rel="icon" type="image/png" href="1000035855.png" sizes="32x32">
-    <!-- Define Apple Touch Icon (used by iOS and sometimes desktop installers) -->
     <link rel="apple-touch-icon" href="1000035855.png">     
-    <!-- Explicitly defining high-resolution icons for desktop installation -->
     <link rel="icon" type="image/png" href="192x192.png" sizes="192x192">
     <link rel="icon" type="image/png" href="512x512.png" sizes="512x512">
-    <!-- Using the user's high-resolution asset to ensure sharp display on large screens -->
     <link rel="icon" type="image/png" href="1866x1866.png" sizes="1866x1866">
     
     <meta name="apple-mobile-web-app-capable" content="yes">    
@@ -38,12 +33,9 @@
         html, body {
             /* Prevent horizontal overflow completely */
             overflow-x: hidden;
-            /* Ensure it occupies full height */
             height: 100%;
-            /* Prevent unwanted margins/padding that cause overflow */
             margin: 0;
             padding: 0;
-            /* Scroll behavior fix */
             width: 100vw;
         }
 
@@ -54,10 +46,10 @@
             align-items: center;                        
             padding: 0;                        
             background-color: #f0f2f5; 
-            /* === CRITICAL FIX: Strictest CSS to disable pinch-to-zoom === */
-            touch-action: none;
-            min-height: 100vh; /* Ensure body takes full vertical height */
-            width: 100%; /* Ensure body doesn't exceed 100% width */
+            /* === REFINED FIX: Allow vertical scrolling (pan-y) but block other gestures === */
+            touch-action: pan-y;
+            min-height: 100vh; 
+            width: 100%; 
         }        
         
         /* === Custom Splash Screen Styles (With Image) === */        
@@ -81,13 +73,11 @@
         .splash-logo-image {            
             width: 250px;             
             height: 250px;
-            /* Use 'cover' to ensure the photo fills the circle without distortion */
             object-fit: cover; 
             margin-bottom: 20px;
-            /* CRITICAL FIX: border-radius 50% makes it a circle */
             border-radius: 50%; 
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            border: 5px solid white; /* Add a nice white border for contrast */
+            border: 5px solid white; 
         }
 
         /* Style for the main text on the splash screen */        
@@ -380,15 +370,13 @@
 
 <!-- === AGGRESSIVE JAVASCRIPT FIX TO DISABLE PINCH-TO-ZOOM === -->
 <script>
-    // This script listens for any touch events and immediately calls preventDefault() 
-    // if more than one finger is touching the screen, effectively blocking pinch-to-zoom.
+    // This is the last line of defense against Chrome's accessibility override.
     document.addEventListener('touchstart', function(event) {
-        // Check if multiple touch points are registered (indicating pinch or multi-touch)
+        // Prevent default action only if two or more fingers are detected (pinch/zoom gesture)
         if (event.touches.length > 1) {
-            // Prevent the default browser action (which is usually zoom/scaling)
             event.preventDefault();
         }
-    }, { passive: false }); // Set passive to false to ensure preventDefault() works
+    }, { passive: false }); // passive: false is CRITICAL to ensure preventDefault() works
 
     // The rest of the support and PWA scripts follow:
     
