@@ -3,8 +3,8 @@
 <head>    
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
-    <!-- CRITICAL: Keeping the most aggressive meta tag to discourage zoom -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
+    <!-- CRITICAL FIX: Removed maximum-scale=1.0, user-scalable=no to allow Edge's persistent session to scroll -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <title>Human Time System (HTS) Converters</title>
 
     <!-- PWA Setup: Link to the Manifest (CRITICAL for PWA recognition) -->    
@@ -46,7 +46,7 @@
             align-items: center;                        
             padding: 0;                        
             background-color: #f0f2f5; 
-            /* === FIX: Removed touch-action to ensure scrolling works on all browsers === */
+            /* === FIX: Ensure content can push the body to full height for scrolling === */
             min-height: 100vh; 
             width: 100%; 
         }        
@@ -369,9 +369,9 @@
 
 <!-- === AGGRESSIVE JAVASCRIPT FIX TO DISABLE PINCH-TO-ZOOM (Still active as a last resort) === -->
 <script>
-    // This is the last line of defense against Chrome's accessibility override.
+    // This is the last line of defense against Chrome/Edge's accessibility override.
+    // It prevents default behavior only when two or more fingers are detected (pinch/zoom gesture).
     document.addEventListener('touchstart', function(event) {
-        // Prevent default action only if two or more fingers are detected (pinch/zoom gesture)
         if (event.touches.length > 1) {
             event.preventDefault();
         }
