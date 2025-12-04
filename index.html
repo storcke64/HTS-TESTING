@@ -3,7 +3,7 @@
 <head>    
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
-    <!-- === CRITICAL FIX: The foundation for disabling zoom === -->
+    <!-- CRITICAL: Keeping the most aggressive meta tag to discourage zoom -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
     <title>Human Time System (HTS) Converters</title>
 
@@ -29,7 +29,7 @@
             box-sizing: border-box;        
         }
         
-        /* === CRITICAL FIX: Prevent Horizontal Jiggle and Zoom === */
+        /* === CRITICAL FIX: Prevent Horizontal Jiggle but allow normal scrolling === */
         html, body {
             /* Prevent horizontal overflow completely */
             overflow-x: hidden;
@@ -46,8 +46,7 @@
             align-items: center;                        
             padding: 0;                        
             background-color: #f0f2f5; 
-            /* === REFINED FIX: Allow vertical scrolling (pan-y) but block other gestures === */
-            touch-action: pan-y;
+            /* === FIX: Removed touch-action to ensure scrolling works on all browsers === */
             min-height: 100vh; 
             width: 100%; 
         }        
@@ -368,7 +367,7 @@
     </footer>
 </div><!-- END Application Content -->
 
-<!-- === AGGRESSIVE JAVASCRIPT FIX TO DISABLE PINCH-TO-ZOOM === -->
+<!-- === AGGRESSIVE JAVASCRIPT FIX TO DISABLE PINCH-TO-ZOOM (Still active as a last resort) === -->
 <script>
     // This is the last line of defense against Chrome's accessibility override.
     document.addEventListener('touchstart', function(event) {
