@@ -3,7 +3,7 @@
 <head>    
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
-    <!-- CRITICAL FIX: Removed maximum-scale=1.0, user-scalable=no to allow Edge's persistent session to scroll -->
+    <!-- Viewport definition is now standard (no anti-zoom code) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     <title>Human Time System (HTS) Converters</title>
 
@@ -29,7 +29,7 @@
             box-sizing: border-box;        
         }
         
-        /* === CRITICAL FIX: Prevent Horizontal Jiggle but allow normal scrolling === */
+        /* === CRITICAL FIX: Ensure no horizontal overflow (NO LEFT/RIGHT JIGGLE) === */
         html, body {
             /* Prevent horizontal overflow completely */
             overflow-x: hidden;
@@ -46,7 +46,7 @@
             align-items: center;                        
             padding: 0;                        
             background-color: #f0f2f5; 
-            /* === FIX: Ensure content can push the body to full height for scrolling === */
+            /* === Allows vertical scrolling by ensuring the body spans the full content height === */
             min-height: 100vh; 
             width: 100%; 
         }        
@@ -240,7 +240,7 @@
 </head>
 <body>
 
-<!-- === Custom Splash Screen (4-Second Delay) - NOW WITH CIRCULAR IMAGE FIX === -->
+<!-- === Custom Splash Screen (4-Second Delay) === -->
 <div id="custom-splash">    
     <!-- MANDATORY: Daughter's Photo set to the user-provided filename -->
     <img         
@@ -367,17 +367,7 @@
     </footer>
 </div><!-- END Application Content -->
 
-<!-- === AGGRESSIVE JAVASCRIPT FIX TO DISABLE PINCH-TO-ZOOM (Still active as a last resort) === -->
 <script>
-    // This is the last line of defense against Chrome/Edge's accessibility override.
-    // It prevents default behavior only when two or more fingers are detected (pinch/zoom gesture).
-    document.addEventListener('touchstart', function(event) {
-        if (event.touches.length > 1) {
-            event.preventDefault();
-        }
-    }, { passive: false }); // passive: false is CRITICAL to ensure preventDefault() works
-
-    // The rest of the support and PWA scripts follow:
     
     // Function to handle the logo loading failure and provide feedback
     function handleLogoError(imgElement, filename) {
