@@ -4,7 +4,7 @@
     <!-- Basic setup and title -->    
     <meta charset="UTF-8">    
     <!-- === FIX: Disable Pinch-to-Zoom on Mobile Devices (Aggressive attempt) === -->
-    <!-- The user-scalable=no, maximum-scale=1.0 are the foundation -->
+    <!-- CRITICAL: user-scalable=no, maximum-scale=1.0 are the foundation -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
     <title>Human Time System (HTS) Converters</title>
 
@@ -33,6 +33,19 @@
         * {            
             box-sizing: border-box;        
         }
+        
+        /* === CRITICAL FIX: Prevent Horizontal Jiggle and Zoom === */
+        html, body {
+            /* Prevent horizontal overflow completely */
+            overflow-x: hidden;
+            /* Ensure it occupies full height */
+            height: 100%;
+            /* Prevent unwanted margins/padding that cause overflow */
+            margin: 0;
+            padding: 0;
+            /* Scroll behavior fix */
+            width: 100vw;
+        }
 
         body {                        
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;                        
@@ -43,6 +56,8 @@
             background-color: #f0f2f5; 
             /* === CRITICAL FIX: Strictest CSS to disable pinch-to-zoom === */
             touch-action: none;
+            min-height: 100vh; /* Ensure body takes full vertical height */
+            width: 100%; /* Ensure body doesn't exceed 100% width */
         }        
         
         /* === Custom Splash Screen Styles (With Image) === */        
