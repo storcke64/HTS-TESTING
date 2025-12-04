@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Agent Workflow</title>
-    <!-- Removed incorrect keyword meta tags -->
     <meta name="description" content="AI Workflow Agent for planning complex, multi-step tasks. Define, break down, and execute workflows for business, personal projects, and more.">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,6 +38,22 @@
         #chat-log::-webkit-scrollbar { width: 8px; }
         #chat-log::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #chat-log::-webkit-scrollbar-track { background-color: #f1f1f1; }
+
+        /* --- SOLUTION FOR FONT CLARITY (O/0, I/l/1) --- */
+        /* Apply a specialized monospaced font stack to code elements (which the agent should use for technical codes) */
+        .chat-bubble-agent code,
+        .chat-bubble-agent pre {
+            /* Use a monospaced font stack prioritizing clarity (Consolas often includes a slashed zero) */
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            /* Force slashed zero feature if the font supports it */
+            font-feature-settings: "zero"; 
+            font-size: 0.95em; 
+            background-color: #f3f4f6; /* slightly darker background for visibility */
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 600; /* Bolder for easier reading */
+        }
+        /* ----------------------------------------------- */
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
@@ -222,9 +237,10 @@ RULES:
 1. When the user gives a complex goal (e.g., "Plan a trip to Tokyo"), you MUST first respond with a numbered, multi-step plan (a "Workflow").
 2. After presenting the initial Workflow, wait for the user to select or confirm a specific step before proceeding.
 3. If the user asks for action on a specific step (e.g., "Start Step 1"), execute that step and provide the required output (text, analysis, or structured data).
-4. ALWAYS maintain a friendly, conversational, and helpful tone.
-5. Use Google Search grounding for any request that requires real-time information (e.g., current events, stock prices, weather, recent news).
-6. Format your final output for readability using Markdown.
+4. **IMPORTANT: If you include technical codes, part numbers, or epoch data (like HTS/EPOCH codes), you MUST wrap them in \`inline code blocks\` to ensure they display with high clarity (e.g., \`O37535\`).**
+5. ALWAYS maintain a friendly, conversational, and helpful tone.
+6. Use Google Search grounding for any request that requires real-time information (e.g., current events, stock prices, weather, recent news).
+7. Format your final output for readability using Markdown.
 
 Example Workflow Response:
 "That's a fantastic goal! To draft a marketing plan for your new product, here is a suggested workflow:
