@@ -189,6 +189,7 @@
             font-weight: 600;                        
             font-size: 0.95em;                
         }                
+        
         /* Footer/New Logo Styling */                
         footer {                        
             margin: 40px auto 40px auto;            
@@ -235,6 +236,36 @@
             background: #ffe0e0; /* Light red background */
             border-radius: 8px;
             border: 1px solid #ff4500;
+        }
+
+        /* === NEW: Visitor Counter Styles === */
+        #visitor-counter-container {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #eaf7ed; /* Light green/success color */
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #1d3557;
+            font-weight: 500;
+            text-align: center;
+        }
+        #visitor-count {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        #counter-toggle-button {
+            background: none;
+            color: #666;
+            padding: 5px;
+            font-size: 0.8em;
+            margin-top: 10px;
+            cursor: pointer;
+            text-decoration: underline;
+            border: none;
+            display: block;
+            width: 100%;
         }
     </style>
 </head>
@@ -358,6 +389,14 @@
         </div>            
         <p class="footer-text">Powered by the Storcke Family Products HTS Tool</p>
         
+        <!-- === NEW: VISITOR COUNTER DISPLAY === -->
+        <div id="visitor-counter-container">
+            <p>Total Visitors:</p>
+            <div id="visitor-count">... Loading ...</div>
+        </div>
+        <button id="counter-toggle-button" onclick="toggleCounterVisibility()">Hide Counter</button>
+        <!-- === END VISITOR COUNTER DISPLAY === -->
+        
         <!-- LINK TO REDDIT DOCUMENTATION -->
         <a href="https://www.reddit.com/user/Whole_Excitement_928/?share_id=-ue0TdPIXtWvVrS4tb-Hg&utm_content=1&utm_medium=android_app&utm_name=androidcss&utm_source=share&utm_term=1/" 
            target="_blank" 
@@ -367,6 +406,101 @@
     </footer>
 </div><!-- END Application Content -->
 
+
+<!-- === FIREBASE & PWA SETUP (Module Script) === -->
+<script type="module">
+    // Import necessary Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, increment, runTransaction, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global variables for Firebase instances
+    let db;
+    let auth;
+    let appId;
+
+    // --- Core Firebase Initialization and Authentication ---
+    async function initFirebase() {
+        console.log("Firebase: Starting initialization...");
+        
+        // Use global variables provided by the environment
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            console.error("Firebase: Configuration not found. Persistence disabled.");
+            return;
+        }
+
+        // Initialize Firebase services
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        
+        // Enable debug logging for troubleshooting Firestore
+        setLogLevel('debug');
+        
+        try {
+            // Authenticate the user
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+                console.log("Firebase: Signed in with custom token.");
+            } else {
+                await signInAnonymously(auth);
+                console.log("Firebase: Signed in anonymously.");
+            }
+            
+            // Once authenticated, update the counter
+            await incrementVisitorCounter();
+
+        } catch (error) {
+            console.error("Firebase: Authentication or Counter Error:", error);
+        }
+    }
+    
+    // --- Visitor Counter Logic (Public Data) ---
+    async function incrementVisitorCounter() {
+        if (!db || !appId) {
+            console.error("Counter: Firestore not initialized.");
+            return;
+        }
+
+        const COUNTER_PATH = `/artifacts/${appId}/public/data/counters`;
+        const counterRef = doc(db, COUNTER_PATH, "hts_visitors");
+        const countDisplay = document.getElementById('visitor-count');
+        
+        try {
+            await runTransaction(db, async (transaction) => {
+                const counterDoc = await transaction.get(counterRef);
+                let newCount = 1;
+                
+                if (counterDoc.exists()) {
+                    // Read the existing count
+                    const currentCount = counterDoc.data().count || 0;
+                    // Increment the count for this visit
+                    newCount = currentCount + 1;
+                }
+                
+                // Write the new count back to the database
+                transaction.set(counterRef, { count: newCount }, { merge: true });
+                
+                // Update the UI immediately with the new count
+                countDisplay.textContent = newCount.toLocaleString();
+
+            });
+        } catch (e) {
+            console.error("Counter: Transaction failed to commit:", e);
+            countDisplay.textContent = "Error loading count";
+        }
+    }
+    
+    // --- Exported Functions ---
+    window.initFirebase = initFirebase; // Make available to the standard script block
+    
+</script>
+
+<!-- === PWA and General JS Script === -->
 <script>
     
     // Function to handle the logo loading failure and provide feedback
@@ -408,18 +542,24 @@
     }
 
     /** * Hides the splash screen, runs initialization logic, and shows the main application content.
-     * This function is now the only entry point for app initialization after the 4-second delay.
      */    
-    function showAppContent() {        
+    async function showAppContent() {        
         console.log('ShowAppContent: Starting sequence to hide splash.');
         
-        // 1. RUN THE APPLICATION LOGIC FIRST (MOVED FROM DOMContentLoaded)
+        // 1. Initialize Firebase and run the visitor counter update
+        if (typeof window.initFirebase === 'function') {
+            await window.initFirebase();
+        } else {
+            console.error("Firebase init function not found.");
+        }
+
+        // 2. Run core application calculations
         initializeApp();
         
         const splash = document.getElementById('custom-splash');        
         const content = document.getElementById('app-content');
 
-        // 2. Hide the splash screen element
+        // 3. Hide the splash screen element
         splash.style.opacity = '0'; 
         
         setTimeout(() => {            
@@ -429,10 +569,26 @@
             console.log('ShowAppContent: Splash hidden, content visible. You should now see the app.');
         }, 300); // Wait for the opacity transition to finish (300ms defined in CSS)
     }
-</script>
 
-<!-- START USER'S APPLICATION LOGIC SCRIPT -->
-<script>        
+    // --- NEW: Toggle Counter Visibility Function (for easy hiding) ---
+    function toggleCounterVisibility() {
+        const counterDiv = document.getElementById('visitor-counter-container');
+        const toggleButton = document.getElementById('counter-toggle-button');
+        
+        if (counterDiv.classList.contains('hidden')) {
+            // Show the counter
+            counterDiv.classList.remove('hidden');
+            toggleButton.textContent = "Hide Counter";
+        } else {
+            // Hide the counter
+            counterDiv.classList.add('hidden');
+            toggleButton.textContent = "Show Counter";
+        }
+    }
+    
+    // Make the toggle function globally accessible
+    window.toggleCounterVisibility = toggleCounterVisibility;
+    
     
     // --- HTS Conversion Logic (Shared) ---        
     function getHTSNotation(gregorianYear) {                
